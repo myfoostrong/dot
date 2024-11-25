@@ -70,6 +70,3 @@ apt install -y apt-transport-https
 apt update
 apt install code # or code-insiders
 
-# oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
