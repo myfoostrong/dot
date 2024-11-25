@@ -1,0 +1,48 @@
+# File: ~/.screenrc
+
+screen -t bash0
+screen -t bash1
+screen -t bash2
+screen -t bash3
+screen -t bash4
+screen -t bash4
+screen -t bash5
+screen -t bash6
+screen -t bash7
+screen -t bash8
+
+# bind ',' prev
+# bind '.' next
+
+#change the hardstatus settings to give an window list at the bottom of the                                                                        
+#screen, with the time and date and with the current window highlighted                                                                            
+hardstatus alwayslastline
+#hardstatus string '%{= kG}%-Lw%{= kW}%50> %n%f* %t%{= kG}%+Lw%< %{= kG}%-=%c:%s%{-}'
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
+
+# Allow bold colors - necessary for some reason
+attrcolor b ".I"
+
+# Tell screen how to set colors. AB = background, AF=foreground
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+
+# Erase background with current bg color
+defbce "on"
+
+# Enable 256 color term
+term xterm-256color
+
+# Cache 30000 lines for scroll back
+defscrollback 3000
+
+# Don't display the copyright page
+startup_message off
+
+# Fix for residual editor text
+altscreen on
+
+# Fix for Name column in windowlist only show "bash"
+windowlist string "%4n %h%=%f"
+
+# Always start `screen` with UTF-8 enabled (`screen -U`)
+defutf8 on
