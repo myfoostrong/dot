@@ -19,7 +19,8 @@ apt-get install -y \
     nmap \
     llvm \
     gnutls-bin \
-    gawk
+    gawk \
+    fonts-powerline
     
 # Terraform CLI
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -70,3 +71,5 @@ apt install -y apt-transport-https
 apt update
 apt install code # or code-insiders
 
+# Install asdr
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
