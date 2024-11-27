@@ -20,7 +20,9 @@ apt-get install -y \
     llvm \
     gnutls-bin \
     gawk \
-    fonts-powerline
+    fonts-powerline \
+    erlang-dev \
+    elixir
     
 # Terraform CLI
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -73,3 +75,28 @@ apt install code # or code-insiders
 
 # Install asdr
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
+. "$HOME/.asdf/asdf.sh"
+
+# Node
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf install nodejs latest
+asdf global nodejs latest
+
+# Python 
+# curl https://pyenv.run | bash
+# asdf plugin add python
+# asdf install python 3.12.7
+# asdf global python latest
+
+# Erlang ASDF
+apt-get -y install build-essential autoconf m4 libncurses-dev libwxgtk3.2-dev libwxgtk-webview3.2-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk
+curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl -o /usr/local/bin/kerl
+chmod a+x /usr/local/bin/kerl
+asdf plugin add erlang
+asdf install erlang latest
+asdf global erlang latest
+
+# Elixir ASDF
+asdf plugin-add elixir
+asdf install elixir latest
+asdf global elixir latest
