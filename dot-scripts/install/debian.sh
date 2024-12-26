@@ -20,9 +20,7 @@ apt-get install -y \
     llvm \
     gnutls-bin \
     gawk \
-    fonts-powerline \
-    erlang-dev \
-    elixir
+    fonts-powerline
     
 # Terraform CLI
 wget -O- https://apt.releases.hashicorp.com/gpg | \
