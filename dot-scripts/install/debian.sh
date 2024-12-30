@@ -20,7 +20,15 @@ apt-get install -y \
     llvm \
     gnutls-bin \
     gawk \
-    fonts-powerline
+    fonts-powerline \
+    openjdk-17-jdk \
+    qemu-kvm \
+    libvirt-daemon-system \
+    libvirt-clients \
+    bridge-utils
+
+# Python-Poetry
+curl -sSL https://install.python-poetry.org | python3 -
     
 # Terraform CLI
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -71,30 +79,14 @@ apt install -y apt-transport-https
 apt update
 apt install code # or code-insiders
 
-# Install asdr
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
-. "$HOME/.asdf/asdf.sh"
+# Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Node
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf install nodejs latest
-asdf global nodejs latest
+# Watchman
+wget -O watchman.tar.gz https://github.com/facebook/watchman/archive/refs/tags/v2024.12.23.00.tar.gz
+tar -xvzf watchman.tar.gz && cd watchman-2024.12.23.00
+./install-system-packages.sh
+./autogen.sh
 
-# Python 
-# curl https://pyenv.run | bash
-# asdf plugin add python
-# asdf install python 3.12.7
-# asdf global python latest
-
-# Erlang ASDF
-apt-get -y install build-essential autoconf m4 libncurses-dev libwxgtk3.2-dev libwxgtk-webview3.2-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk
-curl -O https://raw.githubusercontent.com/kerl/kerl/master/kerl -o /usr/local/bin/kerl
-chmod a+x /usr/local/bin/kerl
-asdf plugin add erlang
-asdf install erlang latest
-asdf global erlang latest
-
-# Elixir ASDF
-asdf plugin-add elixir
-asdf install elixir latest
-asdf global elixir latest
+# Android Studio
+snap install android-studio --classic

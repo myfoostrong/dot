@@ -1,3 +1,5 @@
-nodejs 23.3.0
-erlang 27.1.2
-elixir 1.17.3-otp-27
+nodejs 23.5.0
+erlang 27.2
+elixir 1.18.1-otp-27
+yarn 1.22.22
+java openjdk-17.0.2
