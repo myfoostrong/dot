@@ -25,7 +25,8 @@ apt-get install -y \
     qemu-kvm \
     libvirt-daemon-system \
     libvirt-clients \
-    bridge-utils
+    bridge-utils \
+    snapd
 
 # Python-Poetry
 curl -sSL https://install.python-poetry.org | python3 -

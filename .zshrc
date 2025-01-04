@@ -14,7 +14,10 @@ ZSH_THEME="random"
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
 # If set to an empty array, this variable will have no effect.
-#ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" "obraun" "xiong-chiamiov-plus" "flazz" "fletcherm" "adben" "jonathan" "crunch")
+#
+#
+# Right now junkfood is #1
+#ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" "obraun" "xiong-chiamiov-plus" "flazz" "fletcherm" "adben" "jonathan" "crunch" 'mikeh' 'rkj' 'rkj-repos' 'nanotech' "junkfood")
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
