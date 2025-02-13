@@ -8,7 +8,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="random"
+ZSH_THEME=random
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -17,7 +17,7 @@ ZSH_THEME="random"
 #
 #
 # Right now junkfood is #1
-#ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" "obraun" "xiong-chiamiov-plus" "flazz" "fletcherm" "adben" "jonathan" "crunch" 'mikeh' 'rkj' 'rkj-repos' 'nanotech' "junkfood")
+#ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" "obraun" "xiong-chiamiov-plus" "flazz" "fletcherm" "adben" "jonathan" "crunch" 'mikeh' 'rkj' 'rkj-repos' 'nanotech' "junkfood" 'tjkirch', 'crcandy' 'tonotdo' 'frisk' 'fino-time' 'ys' 'gallois')
 
 # Uncomment the following line to use case-sensitive completion.
 # CASE_SENSITIVE="true"
@@ -125,3 +125,5 @@ export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
+alias c2c-start="$HOME/dot-scripts/aws/start-c2c.sh"
+alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
