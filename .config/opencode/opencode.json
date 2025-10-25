@@ -1,0 +1,55 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "task-orchestrator": {
+        "description": "Use this agent to manage tasks and planning for subagents",
+        "mode": "primary",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "tools": {
+            "write": false,
+            "edit": false,
+            "bash": false,
+            "todoread": true,
+            "todowrite": true
+        },
+        "prompt": "{file:./prompts/project-task-orchestrator.md}"
+    },
+    "python-developer": {
+        "description": "Use this agent when a user requires development, optimization, or advice on FastAPI code.",
+        "mode": "subagent",
+        "model": "opencode/code-supernova",
+        "prompt": "{file:./prompts/fastapi-developer.md}",
+        "tools": {
+            "write": true,
+            "edit": true,
+            "bash": true,
+            "todoread": true,
+            "webfetch": true,
+            "glob": true,
+            "grep": true,
+            "list": true,
+            "patch": true
+        }
+    },
+    "debugger": {
+
+    },
+    "python-reviewer": {
+        "description": "Use this agent when a user requires code review.",
+        "mode": "subagent",
+        "model": "anthropic/claude-sonnet-4-5-20250929",
+        "prompt": "{file:./prompts/code_review/code_review_python.md}",
+        "tools": {
+            "write": false,
+            "edit": false,
+            "bash": true,
+            "todoread": true,
+            "webfetch": true,
+            "glob": true,
+            "grep": true,
+            "list": true,
+            "patch": true
+        }
+    },
+  }
+}
