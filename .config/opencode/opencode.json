@@ -14,31 +14,49 @@
         },
         "prompt": "{file:./prompts/project-task-orchestrator.md}"
     },
-    "python-developer": {
+    "debugger": {
+        "description": "Use this agent when analyzing the output of test runs and debugging the root cause of the failures.",
+        "mode": "subagent",
+        "model": "opencode/big-pickle",
+        "prompt": "{file:./prompts/test_debug/test-failure-analyzer.md}",
+        "tools": {
+            "write": false,
+            "edit": false,
+            "bash": true,
+            "todoread": true,
+            "todowrite": true,
+            "webfetch": true,
+            "glob": true,
+            "grep": true,
+            "list": true
+        }
+    },
+    "fastapi-developer": {
         "description": "Use this agent when a user requires development, optimization, or advice on FastAPI code.",
         "mode": "subagent",
-        "model": "opencode/code-supernova",
+        "model": "opencode/big-pickle",
         "prompt": "{file:./prompts/fastapi-developer.md}",
         "tools": {
             "write": true,
             "edit": true,
-            "bash": true,
-            "todoread": true,
-            "webfetch": true,
-            "glob": true,
-            "grep": true,
-            "list": true,
-            "patch": true
+            "bash": true
         }
     },
-    "debugger": {
-
+    "fastapi-planner": {
+        "description": "Use this agent when a user requires planning or advice on FastAPI code.",
+        "mode": "primary",
+        "model": "anthropic/claude-sonnet-4-5-20251001",
+        "prompt": "{file:./prompts/fastapi-planner.md}",
+        "tools": {
+            "write": false,
+            "edit": false
+        }
     },
-    "python-reviewer": {
-        "description": "Use this agent when a user requires code review.",
-        "mode": "subagent",
-        "model": "anthropic/claude-sonnet-4-5-20250929",
-        "prompt": "{file:./prompts/code_review/code_review_python.md}",
+    "fastapi-reviewer": {
+        "description": "Use this agent when a user requires FastAPI code review.",
+        "mode": "primary",
+        "model": "openrouter/anthropic/claude-sonnet-4.5",
+        "prompt": "{file:./prompts/code_review/fastapi-reviewer.md}",
         "tools": {
             "write": false,
             "edit": false,
@@ -48,8 +66,44 @@
             "glob": true,
             "grep": true,
             "list": true,
-            "patch": true
+            "patch": false
         }
     },
+    "fastmcp-planner": {
+        "description": "Use this agent when a user requires planning, or advice on MCP protocol and FastMCP code.",
+        "mode": "primary",
+        "model": "anthropic/claude-sonnet-4-5-20251001",
+        "prompt": "{file:./prompts/fastmcp-planner.md}",
+        "tools": {
+            "write": false,
+            "edit": false
+        }
+    },
+    "fastmcp-developer": {
+        "description": "Use this agent when a user requires development, optimization, or advice on MCP protocol and FastMCP code.",
+        "mode": "subagent",
+        "model": "opencode/big-pickle",
+        "prompt": "{file:./prompts/fastmcp-developer.md}",
+        "tools": {
+            "todowrite": false
+        }
+    },
+    "fastmcp-reviewer": {
+        "description": "Use this agent when a user requires FastMCP code review.",
+        "mode": "primary",
+        "model": "anthropic/claude-sonnet-4-5-20251001",
+        "prompt": "{file:./prompts/code_review/fastmcp-reviewer.md}",
+        "tools": {
+            "write": false,
+            "edit": false,
+            "bash": true,
+            "todoread": true,
+            "webfetch": true,
+            "glob": true,
+            "grep": true,
+            "list": true,
+            "patch": false
+        }
+    }
   }
 }
