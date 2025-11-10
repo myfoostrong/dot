@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check if running as root/sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root or with sudo"
+    exit 1
+fi
+
 apt-get update && apt-get -y upgrade && apt-get -y dist-upgrade
 apt-get install -y \
     vim \
@@ -28,8 +34,8 @@ apt-get install -y \
     bridge-utils \
     snapd
 
-# Python-Poetry
-curl -sSL https://install.python-poetry.org | python3 -
+# Python uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
     
 # Terraform CLI
 wget -O- https://apt.releases.hashicorp.com/gpg | \
@@ -78,7 +84,7 @@ echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft
 rm -f packages.microsoft.gpg
 apt install -y apt-transport-https
 apt update
-apt install code # or code-insiders
+apt install -y code # or code-insiders
 
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -88,6 +94,3 @@ wget -O watchman.tar.gz https://github.com/facebook/watchman/archive/refs/tags/v
 tar -xvzf watchman.tar.gz && cd watchman-2024.12.23.00
 ./install-system-packages.sh
 ./autogen.sh
-
-# Android Studio
-snap install android-studio --classic
