@@ -1,10 +1,12 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "model": "zai-coding-plan/glm-4.6",
+  "theme": "tokyonight",
   "agent": {
     "task-orchestrator": {
         "description": "Use this agent to manage tasks and planning for subagents",
         "mode": "primary",
-        "model": "anthropic/claude-haiku-4-5-20251001",
+        "model": "anthropic/claude-haiku-4-5",
         "tools": {
             "write": false,
             "edit": false,
@@ -45,9 +47,15 @@
     "fastapi-planner": {
         "description": "Use this agent when a user requires planning or advice on FastAPI code.",
         "mode": "primary",
-        "model": "anthropic/claude-sonnet-4-5-20251001",
+        "model": "anthropic/claude-sonnet-4-5",
         "prompt": "{file:./prompts/fastapi-planner.md}",
         "tools": {
+            "read": true,
+            "glob": true,
+            "grep": true,
+            "webfetch": true,
+            "list": true,
+            "bash": false,
             "write": false,
             "edit": false
         }
@@ -55,7 +63,7 @@
     "fastapi-reviewer": {
         "description": "Use this agent when a user requires FastAPI code review.",
         "mode": "primary",
-        "model": "openrouter/anthropic/claude-sonnet-4.5",
+        "model": "anthropic/claude-sonnet-4-5",
         "prompt": "{file:./prompts/code_review/fastapi-reviewer.md}",
         "tools": {
             "write": false,
@@ -72,9 +80,15 @@
     "fastmcp-planner": {
         "description": "Use this agent when a user requires planning, or advice on MCP protocol and FastMCP code.",
         "mode": "primary",
-        "model": "anthropic/claude-sonnet-4-5-20251001",
-        "prompt": "{file:./prompts/fastmcp-planner.md}",
+        "model": "anthropic/claude-sonnet-4-5",
+        "prompt": "{file:./prompts/fastmcp-developer.md}",
         "tools": {
+            "read": true,
+            "glob": true,
+            "grep": true,
+            "webfetch": true,
+            "list": true,
+            "bash": false,
             "write": false,
             "edit": false
         }
@@ -83,7 +97,7 @@
         "description": "Use this agent when a user requires development, optimization, or advice on MCP protocol and FastMCP code.",
         "mode": "subagent",
         "model": "opencode/big-pickle",
-        "prompt": "{file:./prompts/fastmcp-developer.md}",
+        "prompt": "{file:./prompts/fastmcp-planner.md}",
         "tools": {
             "todowrite": false
         }
@@ -91,7 +105,7 @@
     "fastmcp-reviewer": {
         "description": "Use this agent when a user requires FastMCP code review.",
         "mode": "primary",
-        "model": "anthropic/claude-sonnet-4-5-20251001",
+        "model": "anthropic/claude-sonnet-4-5",
         "prompt": "{file:./prompts/code_review/fastmcp-reviewer.md}",
         "tools": {
             "write": false,
