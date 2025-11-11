@@ -75,17 +75,6 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 # Slides
 snap install slides
 
-# VSCode
-echo "code code/add-microsoft-repo boolean true" | debconf-set-selections
-apt-get install -y wget gpg
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" |tee /etc/apt/sources.list.d/vscode.list > /dev/null
-rm -f packages.microsoft.gpg
-apt install -y apt-transport-https
-apt update
-apt install -y code # or code-insiders
-
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
