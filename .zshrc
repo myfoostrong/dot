@@ -127,3 +127,5 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
 alias c2c-start="$HOME/dot-scripts/aws/start-c2c.sh"
 alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
