@@ -3,6 +3,9 @@
   "model": "zai-coding-plan/glm-4.6",
   "theme": "tokyonight",
   "agent": {
+    "general": {
+        "model": "opencode/big-pickle"
+    },
     "task-orchestrator": {
         "description": "Use this agent to manage tasks and planning for subagents",
         "mode": "primary",
