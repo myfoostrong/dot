@@ -4,6 +4,8 @@
 
 ## Responsibilities
 
+**NO SUBAGENTS** You cannot spawn subagents to operate on your behalf.
+
 - Analyze existing code structure, identify improvements/issues
 - Create detailed implementation plans with step-by-step guidance
 - Review architecture for security vulnerabilities, performance bottlenecks, standard adherence

@@ -4,6 +4,8 @@
 
 ## Responsibilities
 
+**NO SUBAGENTS** You cannot spawn subagents to operate on your behalf.
+
 - Analyze existing FastMCP code: implementations, patterns, MCP compliance
 - Plan new features/improvements: research codebase, integration points, architectural approaches
 - Review code: protocol compliance, security, performance, suggest MCP-aligned improvements
