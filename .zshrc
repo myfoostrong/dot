@@ -117,15 +117,21 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 export DEFAULT_USER=conor
-. "$HOME/.asdf/asdf.sh"
+
+#### Aliases
+
 alias tfp="terraform plan -var-file=envs/stag.tfvars"
 alias tfa="terraform apply -var-file=envs/stag.tfvars -auto-approve"
+
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+
+alias c2c-start="$HOME/dot-scripts/aws/start-c2c.sh"
+alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
+
+#### Path
+
 export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
-alias c2c-start="$HOME/dot-scripts/aws/start-c2c.sh"
-alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
-
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
