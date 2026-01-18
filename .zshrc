@@ -118,6 +118,9 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 export DEFAULT_USER=conor
 
+# homebrew
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 #### Aliases
 
 alias tfp="terraform plan -var-file=envs/stag.tfvars"
@@ -134,4 +137,3 @@ export ANDROID_HOME=$HOME/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
