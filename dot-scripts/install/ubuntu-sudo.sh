@@ -32,19 +32,10 @@ apt-get install -y \
     libvirt-daemon-system \
     libvirt-clients \
     bridge-utils \
-    snapd
-
-# Python uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-    
-# Terraform CLI
-wget -O- https://apt.releases.hashicorp.com/gpg | \
-gpg --dearmor | \
-tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-tee /etc/apt/sources.list.d/hashicorp.list
-apt update && apt install -y terraform
+    snapd \
+    build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev curl git \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
 # AWS CLI
 apt remove -y awscli
@@ -55,36 +46,25 @@ mkdir ~/.aws
 cp ./aws_foo_config ~/.aws/config
 
 # Docker
-echo "Setting up git ..."
-# Add Docker's official GPG key:
-apt-get update
-apt-get install -y ca-certificates curl
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-chmod a+r /etc/apt/keyrings/docker.asc
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+usermod -aG docker $(logname)
 
-# Add the repository to Apt sources:
-for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do apt-get remove $pkg; done
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt-get update
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+# ## Add Docker's official GPG key:
+# apt-get update
+# apt-get install -y ca-certificates curl
+# install -m 0755 -d /etc/apt/keyrings
+# curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+# chmod a+r /etc/apt/keyrings/docker.asc
 
-# Slides
-snap install slides
-
-# VSCode
-echo "code code/add-microsoft-repo boolean true" | debconf-set-selections
-apt-get install -y wget gpg
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" |tee /etc/apt/sources.list.d/vscode.list > /dev/null
-rm -f packages.microsoft.gpg
-apt install -y apt-transport-https
-apt update
-apt install -y code # or code-insiders
+# ## Add the repository to Apt sources:
+# for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do apt-get remove $pkg; done
+# echo \
+#   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+#   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+#   tee /etc/apt/sources.list.d/docker.list > /dev/null
+# apt-get update
+# apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -94,3 +74,6 @@ wget -O watchman.tar.gz https://github.com/facebook/watchman/archive/refs/tags/v
 tar -xvzf watchman.tar.gz && cd watchman-2024.12.23.00
 ./install-system-packages.sh
 ./autogen.sh
+
+# Slides
+snap install slides
