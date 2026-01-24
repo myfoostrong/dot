@@ -119,7 +119,9 @@ source $ZSH/oh-my-zsh.sh
 export DEFAULT_USER=conor
 
 # homebrew
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+eval "$(/usr/local/bin/brew shellenv zsh)"
+
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 #### Aliases
 
