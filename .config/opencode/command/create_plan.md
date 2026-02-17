@@ -1,5 +1,4 @@
 ---
-agent: plan
 description: Create detailed implementation plans with thorough research and iteration
 ---
 
