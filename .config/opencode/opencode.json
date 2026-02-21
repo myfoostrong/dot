@@ -1,36 +1,31 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "opencode-openai-codex-auth@4.1.1",
-    "opencode-gemini-auth@latest"
-  ],
-  "model": "google/gemini-3-pro-preview",
+  "model": "zai-coding-plan/glm-4.7",
   "permission": {
     "doom_loop": "ask"
   },
   "theme": "tokyonight",
   "agent": {
     "task-orchestrator": {
-        "description": "This agent excels at managing multiple subagents in parallel.",
-        "mode": "primary",
-        "model": "google/gemini-3-flash-preview",
-        "tools": {
-            "write": false,
-            "edit": false,
-            "bash": false,
-            "todoread": true,
-            "todowrite": true
-        },
-        "prompt": "{file:./prompts/task-orchestrator.md}"
+      "description": "This agent excels at managing multiple subagents in parallel.",
+      "mode": "primary",
+      "model": "zai-coding-plan/glm-4.7",
+      "tools": {
+        "edit": false,
+        "bash": false,
+        "todoread": true,
+        "todowrite": true
+      },
+      "prompt": "{file:./prompts/task-orchestrator.md}"
     },
     "lookup": {
-      "model": "google/gemini-3-flash-preview",
+      "model": "zai-coding-plan/glm-4.7",
       "mode": "subagent",
       "permission": {
-        "edit": "deny",
+        "edit": "deny"
       },
       "description": "This agent excels at researching and locating information. It’s optimized for finding where specific code elements are defined or used, reading and interpreting documentation, researching technical details, and retrieving code examples that demonstrate best practices or specific APIs. It’s also great at maintaining and leveraging context, helping the primary agent quickly surface relevant information from large codebases, docs, or external sources.",
-      "prompt": "After conducting your research, summarize the key findings clearly and concisely. Include only the most relevant code examples, file names, and sources as needed.",
+      "prompt": "After conducting your research, summarize the key findings clearly and concisely. Include only the most relevant code examples, file names, and sources as needed."
     },
     "developer": {
       "description": "Use this agent when a user requires development, optimization, or advice on code.",
@@ -56,37 +51,5 @@
       }
     }
   },
-  "mcp": {
-//     "context7": {
-//       "type": "remote",
-//       "url": "https://mcp.context7.com/mcp",
-//       "headers": {
-//         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}",
-//       },
-//       "enabled": false,
-//     },
-    "gh_grep": {
-      "type": "remote",
-      "url": "https://mcp.grep.app/",
-      // "enabled": false,
-    },
-  },
-  "provider": {
-    "google": {
-      "options": {
-        "projectId": "squad-461600"
-      },
-      "models": {
-        "gemini-3-pro-preview": {
-          "name": "Gemini 3 Pro Preview",
-          "options": {
-            "thinkingConfig": {
-              "thinkingLevel": "high",
-              "includeThoughts": true
-            }
-          }
-        }
-      }
-    }
-  }
+  "mcp": {}
 }

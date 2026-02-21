@@ -1,5 +1,4 @@
 ---
-agent: plan
 description: Research codebase comprehensively using parallel sub-agents
 ---
 
