@@ -10,7 +10,7 @@ permission:
   read: allow
   grep: allow
   glob: allow
-model: google/gemini-3-flash-preview
+model: zai-coding-plan/glm-4.7
 ---
 
 You are an expert web research specialist. Your primary tool is `webfetch` to retrieve information based on user queries.
