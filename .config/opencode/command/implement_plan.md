@@ -21,10 +21,11 @@ If no plan path provided, ask for one.
 
 ## Implementation Philosophy
 
-Plans are carefully designed, but reality can be messy. Your job is to:
+Plans are carefully designed, but reality can be messy.
 - Follow the plan's intent while adapting to what you find
 - Implement each phase fully before moving to the next
 - Verify your work makes sense in the broader codebase context
+- DO NOT run the full project test suite or final verification steps
 - Update checkboxes in the plan as you complete sections
 
 When things don't match the plan exactly, think about why and communicate clearly. The plan is your guide, but your judgment matters too.
@@ -41,14 +42,31 @@ If you encounter a mismatch:
   How should I proceed?
   ```
 
+## Spawn Parallel Subagents to implement the changes
+
+Leverage `@developer` subagents to implement as many different portions of work in parallel as possible. Check for conflicts (like two agents operating on the same file) when scheduling these Tasks.
+
+*   **Subagent Type:** `developer`
+*   **Description:** Implement task [N]
+*   **Prompt:**
+    ```
+    Implement the following task: [task description]
+
+    IMPORTANT OVERRIDES for this parallel execution:
+    1. Implement the changes for this specific task.
+    2. DO NOT run the full project test suite or final verification steps (e.g. `make check`).
+    3. ONLY run specific unit tests if you created/modified them strictly within your task.
+    4. Report completion once the code is implemented.
+    ```
+
 ## Verification Approach
 
-After implementing a phase:
-- Run the success criteria checks (usually `make check test` covers everything)
+After implementing all phases, launch a `@developer` subagent to perform the following:
+- Run the success criteria checks (usually `make test` or `pnpm test` covers everything)
 - Fix any issues before proceeding
 - Update your progress in both the plan and your todos
 - Check off completed items in the plan file itself using Edit
-- **Pause for human verification**: After completing all automated verification for a phase, pause and inform the human that the phase is ready for manual testing. Use this format:
+- **Pause for human verification**: After completing all automated verification, inform the parent session that the phase is ready for manual testing. Use this format:
   ```
   Phase [N] Complete - Ready for Manual Verification
 
