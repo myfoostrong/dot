@@ -4,12 +4,11 @@
   "permission": {
     "doom_loop": "ask"
   },
-  "theme": "tokyonight",
   "agent": {
     "task-orchestrator": {
       "description": "This agent excels at managing multiple subagents in parallel.",
       "mode": "primary",
-      "model": "zai-coding-plan/glm-4.7",
+      "model": "zai-coding-plan/glm-5.1",
       "tools": {
         "edit": false,
         "bash": false,
