@@ -1,5 +1,4 @@
 ---
-agent: plan
 description: Iterate on existing implementation plans with thorough research and updates
 ---
 

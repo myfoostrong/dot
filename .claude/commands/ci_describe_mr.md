@@ -9,8 +9,8 @@ You are tasked with generating a comprehensive merge request description followi
 ## Steps to follow:
 
 1. **Read the MR description template:**
-   - First, check if `thoughts/shared/mr_description.md` exists
-   - If it doesn't exist, inform the user that their thoughts setup is incomplete and they need to create an MR description template at `thoughts/shared/mr_description.md`
+   - First, check if `tix/mr_description.md` exists
+   - If it doesn't exist, inform the user that their thoughts setup is incomplete and they need to create an MR description template at `tix/mr_description.md`
    - Read the template carefully to understand all sections and requirements
 
 2. **Identify the MR to describe:**
@@ -19,7 +19,7 @@ You are tasked with generating a comprehensive merge request description followi
    - Ask the user which MR they want to describe
 
 3. **Check for existing description:**
-   - Check if `thoughts/shared/mrs/{number}_description.md` already exists
+   - Check if `tix/mrs/{number}_description.md` already exists
    - If it exists, read it and inform the user you'll be updating it
    - Consider what has changed since the last description was written
 
@@ -54,11 +54,11 @@ You are tasked with generating a comprehensive merge request description followi
    - Ensure all checklist items are addressed (checked or explained)
 
 8. **Save and sync the description:**
-   - Write the completed description to `thoughts/shared/mrs/{number}_description.md`
+   - Write the completed description to `tix/mrs/{number}_description.md`
    - Show the user the generated description
 
 9. **Update the MR:**
-   - Update the MR description directly: `glab mr update {number} --description "$(cat thoughts/shared/mrs/{number}_description.md)"`
+   - Update the MR description directly: `glab mr update {number} --description "$(cat tix/mrs/{number}_description.md)"`
    - Confirm the update was successful
    - If any verification steps remain unchecked, remind the user to complete them before merging
 

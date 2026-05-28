@@ -169,7 +169,7 @@ Once aligned on approach:
 
 After structure approval:
 
-1. **Write the plan** to `thoughts/shared/plans/YYYY-MM-DD-issue-XXXX-description.md`
+1. **Write the plan** to `tix/plans/YYYY-MM-DD-issue-XXXX-description.md`
    - Format: `YYYY-MM-DD-issue-XXXX-description.md` where:
      - YYYY-MM-DD is today's date
      - XXXX is the GitLab issue number (omit the `issue-XXXX-` segment if no issue)
@@ -272,7 +272,7 @@ After structure approval:
 ## References
 
 - Original ticket: `thoughts/allison/tickets/eng_XXXX.md`
-- Related research: `thoughts/shared/research/[relevant].md`
+- Related research: `tix/research/[relevant].md`
 - Similar implementation: `[file:line]`
 ````
 
@@ -281,7 +281,7 @@ After structure approval:
 1. **Present the draft plan location**:
    ```
    I've created the initial implementation plan at:
-   `thoughts/shared/plans/YYYY-MM-DD-issue-XXXX-description.md`
+   `tix/plans/YYYY-MM-DD-issue-XXXX-description.md`
 
    Please review it and let me know:
    - Are the phases properly scoped?
