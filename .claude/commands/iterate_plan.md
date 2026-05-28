@@ -1,5 +1,6 @@
 ---
 description: Iterate on existing implementation plans with thorough research and updates
+model: opus
 ---
 
 # Iterate Implementation Plan
@@ -11,7 +12,7 @@ You are tasked with updating existing implementation plans based on user feedbac
 When this command is invoked:
 
 1. **Parse the input to identify**:
-   - Plan file path (e.g., `.opencode/plans/2025-10-16-feature.md`)
+   - Plan file path (e.g., `tix/plans/2025-10-16-feature.md`)
    - Requested changes/feedback
 
 2. **Handle different input scenarios**:
@@ -20,9 +21,9 @@ When this command is invoked:
    ```
    I'll help you iterate on an existing implementation plan.
 
-   Which plan would you like to update? Please provide the path to the plan file (e.g., `.opencode/plans/2025-10-16-feature.md`).
+   Which plan would you like to update? Please provide the path to the plan file (e.g., `tix/plans/2025-10-16-feature.md`).
 
-   Tip: You can list recent plans with `ls -lt .opencode/plans/ | head`
+   Tip: You can list recent plans with `ls -lt tix/plans/ | head`
    ```
    Wait for user input, then re-check for feedback.
 
@@ -68,17 +69,15 @@ If the user's feedback requires understanding new code patterns or validating as
    Use the right agent for each type of research:
 
    **For code investigation:**
-   - **@codebase-locator** - To find relevant files
-   - **@codebase-analyzer** - To understand implementation details
-   - **@codebase-pattern-finder** - To find similar patterns
+   - **codebase-locator** - To find relevant files
+   - **codebase-analyzer** - To understand implementation details
+   - **codebase-pattern-finder** - To find similar patterns
 
    **For historical context:**
-   - **@thoughts-locator** - To find related research or decisions
-   - **@thoughts-analyzer** - To extract insights from documents
+   - **thoughts-locator** - To find related research or decisions
+   - **thoughts-analyzer** - To extract insights from documents
 
    **Be EXTREMELY specific about directories**:
-   - If the change involves "WUI", specify `humanlayer-wui/` directory
-   - If it involves "daemon", specify `hld/` directory
    - Include full path context in prompts
 
 3. **Read any new files identified by research**:
@@ -133,7 +132,7 @@ Get user confirmation before proceeding.
 
 1. **Present the changes made**:
    ```
-   I've updated the plan at `.opencode/plans/[filename].md`
+   I've updated the plan at `tix/plans/[filename].md`
 
    Changes made:
    - [Specific change 1]
@@ -191,7 +190,7 @@ When updating success criteria, always maintain the two-category structure:
 
 1. **Automated Verification** (can be run by execution agents):
    - Commands that can be run: `make test`, `npm run lint`, etc.
-   - Prefer `make` commands: `make -C humanlayer-wui check` instead of `cd humanlayer-wui && bun run fmt`
+   - Prefer `make` commands where available
    - Specific files that should exist
    - Code compilation/type checking
 
@@ -221,13 +220,13 @@ When spawning research sub-tasks:
 
 **Scenario 1: User provides everything upfront**
 ```
-User: /iterate_plan .opencode/plans/2025-10-16-feature.md - add phase for error handling
+User: /iterate_plan tix/plans/2025-10-16-feature.md - add phase for error handling
 Assistant: [Reads plan, researches error handling patterns, updates plan]
 ```
 
 **Scenario 2: User provides just plan file**
 ```
-User: /iterate_plan .opencode/plans/2025-10-16-feature.md
+User: /iterate_plan tix/plans/2025-10-16-feature.md
 Assistant: I've found the plan. What changes would you like to make?
 User: Split Phase 2 into two phases - one for backend, one for frontend
 Assistant: [Proceeds with update]
@@ -237,7 +236,7 @@ Assistant: [Proceeds with update]
 ```
 User: /iterate_plan
 Assistant: Which plan would you like to update? Please provide the path...
-User: .opencode/plans/2025-10-16-feature.md
+User: tix/plans/2025-10-16-feature.md
 Assistant: I've found the plan. What changes would you like to make?
 User: Add more specific success criteria
 Assistant: [Proceeds with update]
