@@ -133,10 +133,11 @@ alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 alias c2c-start="$HOME/dot-scripts/aws/start-c2c.sh"
 alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
 
+alias home-squad="$HOME/ssh_tmux.sh kali@c2c.foo.solutions trik@localhost 9900 squad"
+
 #### Path
 
-export ANDROID_HOME=$HOME/Android/Sdk
+export ANDROID_HOME=$HOME/Library/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
