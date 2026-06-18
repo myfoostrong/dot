@@ -6,10 +6,15 @@ Replace the current "every repo has its own `tix/` directory (and may also have 
 `thoughts/` directory)" convention with a single Obsidian-synced vault that
 holds the planning files for every repo. Each repo gets a `tix` symlink
 pointing into the vault. The symlink is visible to Claude Code / opencode but
-hidden from `git status` via `.git/info/exclude` (not `.gitignore`, which the
-harnesses also honour). A new `tix` Zsh command provides `cd`, `init`, `open`,
-and `path` subcommands. The whole thing must bootstrap reproducibly on Ubuntu,
-Debian, Kali, WSL (any of those distros), and macOS.
+hidden from `git status` via a `/tix` line in `.git/info/exclude` (not
+`.gitignore`, which the harnesses also honour; the leading slash anchors the
+match to the repo root so unrelated nested `tix` directories are not affected).
+A new `tix` Zsh command provides `cd`, `init`, `open`, `reveal`, and `path`
+subcommands. Vault location is resolved by parsing Obsidian's own per-machine
+registry (`obsidian.json`) keyed by `$OBSIDIAN_VAULT_NAME`, so the vault
+survives being moved on disk without any per-machine config drift. The whole
+thing must bootstrap reproducibly on Ubuntu, Debian, Kali, WSL (any of those
+distros), and macOS.
 
 ## Current State Analysis
 
@@ -52,14 +57,17 @@ From `tix/research/2026-06-18-obsidian-vault-multi-repo-planning.md`:
 
 After this plan is implemented:
 
-1. `$OBSIDIAN_VAULT` is set in `.zshrc` (or autodiscovered from a fallback
-   list) on every supported OS. On a fresh machine, sourcing `.zshrc` either
-   finds the vault or prints a single actionable error telling the user to
-   set the env var.
+1. `$OBSIDIAN_VAULT_NAME` is set in `.zshrc` (and only that — no per-machine
+   absolute path). On every supported OS, sourcing `.zshrc` makes the `tix`
+   command resolve the vault by reading Obsidian's `obsidian.json` registry
+   and matching the named vault. On a fresh machine, if `jq` is missing or the
+   named vault is not in any registry, `tix` prints a single actionable error.
 2. `tix` is a Zsh function. With no args it `cd`s to
-   `$OBSIDIAN_VAULT/repos/<repo-name>/`. `tix open` opens that folder in
-   Obsidian using the OS-correct opener. `tix init` (run once per repo) creates
-   the vault subdir + the `./tix` symlink + the `.git/info/exclude` entry. `tix
+   `<vault>/repos/<repo-name>/`. `tix open` opens that folder *inside Obsidian*
+   via the `obsidian://open?vault=...&file=repos/<repo>` URI scheme. `tix
+   reveal` opens that folder in the OS file manager (Finder / Nautilus /
+   Windows Explorer via WSL). `tix init` (run once per repo) creates the vault
+   subdir + the `./tix` symlink + the `/tix` line in `.git/info/exclude`. `tix
    path` prints the resolved path for scripting.
 3. In any repo where `tix init` has been run, `ls -la` shows `tix ->
    <vault>/repos/<repo>/`, `git status` is clean, and Claude Code / opencode
@@ -80,12 +88,26 @@ After this plan is implemented:
 - The "harness sees it but git doesn't" requirement rules out `.gitignore`.
   `.git/info/exclude` has identical syntax, is per-repo and local-only, and
   is not part of the tree the harness reads — it is the right tool.
+- The exclude pattern must be `/tix` (leading slash), not `tix`. The
+  unanchored form matches any path component named `tix` at any depth, which
+  would silently hide e.g. `src/tix/` or a test fixture named `tix` from
+  `git status`. Anchoring to the repo root avoids the collision.
 - Shell-function form is required for `tix` because the no-arg case must
   `cd`. A standalone script can't change the parent shell's cwd.
-- `xdg-open` works on plain Linux. WSL needs `wslview` (from `wslu`) or a
-  `cmd.exe /c start` fallback. macOS uses `open`. The opener helper must
-  branch on `$OSTYPE` and the existence of `/proc/version` containing
-  `microsoft`.
+- Obsidian writes a per-machine vault registry at
+  `~/.config/obsidian/obsidian.json` (Linux), `~/Library/Application
+  Support/obsidian/obsidian.json` (macOS), and `%APPDATA%/obsidian/obsidian.json`
+  (Windows; reachable from WSL via `wslpath`). Each `vaults.<id>.path` entry is
+  the absolute path Obsidian last saw. Matching by `basename(path) ==
+  $OBSIDIAN_VAULT_NAME` lets the same `.zshrc` work on every machine without
+  hard-coded paths. Paths in the Windows registry may use backslashes; the
+  resolver normalises them and converts to a WSL path when running under WSL.
+- The Obsidian URI scheme `obsidian://open?vault=<name>&file=<relpath>` opens
+  Obsidian focused on a specific vault path. It works from `open` (macOS),
+  `xdg-open` (Linux), and `cmd.exe /c start` / `wslview` (WSL). This is what
+  `tix open` uses, so the user lands in Obsidian rather than the file
+  manager. `tix reveal` is the separate subcommand for the file-manager case
+  (uses `xdg-open` / `open` / WSL `cmd.exe start` against the directory).
 - The current `tix/research/2026-06-18-obsidian-vault-multi-repo-planning.md`
   document (created by the research step) is committed in this branch; the
   migration step has to relocate it rather than discard it.
@@ -125,12 +147,14 @@ migration.
 
 ---
 
-## Phase 1: `tix` Zsh function + vault discovery + OS-aware opener
+## Phase 1: `tix` Zsh function + vault discovery + OS-aware openers
 
 ### Overview
 Create a single sourced Zsh fragment that defines the `tix` function, an
-`__tix_resolve_vault` helper, and an `__tix_open` helper. Wire it into
-`.zshrc`. After this phase, `tix path` and `tix open` work in any repo; the
+`__tix_resolve_vault` helper (parses `obsidian.json` by
+`$OBSIDIAN_VAULT_NAME`), an `__tix_open` helper (Obsidian URI), and an
+`__tix_reveal` helper (system file manager). Wire it into `.zshrc`. After
+this phase, `tix path`, `tix open`, and `tix reveal` work in any repo; the
 `init` subcommand is stubbed (Phase 2 fills it in).
 
 ### Changes Required:
@@ -144,34 +168,95 @@ function and its helpers.
 # tix.zsh — single Obsidian vault planning store
 # Sourced from ~/.zshrc. Defines the `tix` user command.
 
-# Resolve the vault root. Order:
-#   1. $OBSIDIAN_VAULT (if set and exists)
-#   2. First match from a fallback list
-# Echoes the path on success; returns non-zero with a message on stderr.
+# Print one obsidian.json candidate path per line, in priority order.
+# Linux/macOS native paths first; on WSL also try the Windows-side registry
+# (Obsidian installed on Windows is the common WSL setup).
+__tix_obsidian_config_files() {
+  case "$OSTYPE" in
+    darwin*)
+      print -r -- "$HOME/Library/Application Support/obsidian/obsidian.json"
+      ;;
+    linux*)
+      print -r -- "${XDG_CONFIG_HOME:-$HOME/.config}/obsidian/obsidian.json"
+      if [[ -r /proc/version ]] && grep -qi microsoft /proc/version; then
+        local win appdata
+        win="$(cmd.exe /c 'echo %APPDATA%' 2>/dev/null | tr -d '\r\n')"
+        if [[ -n "$win" ]]; then
+          appdata="$(wslpath -u "$win" 2>/dev/null)"
+          [[ -n "$appdata" ]] && print -r -- "${appdata}/obsidian/obsidian.json"
+        fi
+      fi
+      ;;
+  esac
+}
+
+# Resolve the vault root by looking up $OBSIDIAN_VAULT_NAME in Obsidian's
+# per-machine registry. Echoes the absolute path on success; returns non-zero
+# with a message on stderr otherwise.
 __tix_resolve_vault() {
-  if [[ -n "${OBSIDIAN_VAULT:-}" && -d "${OBSIDIAN_VAULT}" ]]; then
-    print -r -- "${OBSIDIAN_VAULT}"
-    return 0
+  if [[ -z "${OBSIDIAN_VAULT_NAME:-}" ]]; then
+    print -r -- "tix: \$OBSIDIAN_VAULT_NAME is not set. Set it to the name of your Obsidian vault (e.g. 'export OBSIDIAN_VAULT_NAME=MyVault')." >&2
+    return 1
   fi
-  local candidate
-  for candidate in \
-    "$HOME/vault" \
-    "$HOME/docs/vault" \
-    "$HOME/Documents/vault" \
-    "$HOME/Obsidian/vault" \
-    "$HOME/obsidian/vault"; do
-    if [[ -d "$candidate" ]]; then
-      print -r -- "$candidate"
-      return 0
+  if ! command -v jq >/dev/null 2>&1; then
+    print -r -- "tix: jq is required for vault discovery (install via apt/brew/pacman)." >&2
+    return 1
+  fi
+  local cfg path
+  while IFS= read -r cfg; do
+    [[ -r "$cfg" ]] || continue
+    # Normalise backslashes to forward slashes before basename comparison,
+    # then return the *original* path so the WSL converter below can detect
+    # Windows paths.
+    path="$(jq -r --arg name "$OBSIDIAN_VAULT_NAME" '
+      .vaults // {}
+      | to_entries[]
+      | select(((.value.path // "") | gsub("\\\\"; "/") | split("/") | last) == $name)
+      | .value.path
+    ' "$cfg" 2>/dev/null | head -n1)"
+    if [[ -n "$path" && "$path" != "null" ]]; then
+      if [[ "$path" == *\\* || "$path" =~ '^[A-Za-z]:' ]]; then
+        path="$(wslpath -u "$path" 2>/dev/null)" || path=""
+      fi
+      if [[ -n "$path" && -d "$path" ]]; then
+        print -r -- "$path"
+        return 0
+      fi
     fi
-  done
-  print -r -- "tix: vault not found. Set \$OBSIDIAN_VAULT or create one of: ~/vault, ~/docs/vault, ~/Documents/vault, ~/Obsidian/vault" >&2
+  done < <(__tix_obsidian_config_files)
+  print -r -- "tix: vault '$OBSIDIAN_VAULT_NAME' not found in any obsidian.json registry. Open Obsidian once with that vault, or check \$OBSIDIAN_VAULT_NAME." >&2
   return 1
 }
 
-# Open a path in the host's GUI file manager / Obsidian.
-# Branches on macOS / WSL / Linux.
+# Open the planning dir *inside Obsidian* via its URI scheme.
+# Argument: relative path inside the vault (e.g. "repos/dot").
 __tix_open() {
+  local relpath="$1" uri
+  [[ -n "${OBSIDIAN_VAULT_NAME:-}" ]] || {
+    print -r -- "tix open: \$OBSIDIAN_VAULT_NAME is not set." >&2 ; return 1
+  }
+  # Minimal percent-encoding: only spaces. Vault names and repo names rarely
+  # contain reserved URI characters; if they do, the user can quote-escape.
+  uri="obsidian://open?vault=${OBSIDIAN_VAULT_NAME// /%20}&file=${relpath// /%20}"
+  case "$OSTYPE" in
+    darwin*) open "$uri" ;;
+    linux*)
+      if [[ -r /proc/version ]] && grep -qi microsoft /proc/version; then
+        if command -v wslview >/dev/null 2>&1; then
+          wslview "$uri"
+        else
+          cmd.exe /c start "" "$uri" 2>/dev/null
+        fi
+      else
+        xdg-open "$uri" >/dev/null 2>&1 &
+      fi
+      ;;
+    *) print -r -- "tix open: unsupported OSTYPE=$OSTYPE" >&2 ; return 1 ;;
+  esac
+}
+
+# Open a path in the host's GUI file manager (not Obsidian).
+__tix_reveal() {
   local target="$1"
   case "$OSTYPE" in
     darwin*) open "$target" ;;
@@ -186,21 +271,26 @@ __tix_open() {
         xdg-open "$target" >/dev/null 2>&1 &
       fi
       ;;
-    *) print -r -- "tix open: unsupported OSTYPE=$OSTYPE" >&2 ; return 1 ;;
+    *) print -r -- "tix reveal: unsupported OSTYPE=$OSTYPE" >&2 ; return 1 ;;
   esac
 }
 
-# Resolve the vault subdirectory for the *current* repo.
 # Repo identity = basename of `git rev-parse --show-toplevel`, falling back
 # to basename of $PWD if not inside a repo.
-__tix_repo_dir() {
-  local vault repo_root repo_name
-  vault="$(__tix_resolve_vault)" || return 1
+__tix_repo_name() {
+  local repo_root
   if repo_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
-    repo_name="$(basename "$repo_root")"
+    basename "$repo_root"
   else
-    repo_name="$(basename "$PWD")"
+    basename "$PWD"
   fi
+}
+
+# Resolve the vault subdirectory for the *current* repo.
+__tix_repo_dir() {
+  local vault repo_name
+  vault="$(__tix_resolve_vault)" || return 1
+  repo_name="$(__tix_repo_name)"
   print -r -- "${vault}/repos/${repo_name}"
 }
 
@@ -218,10 +308,14 @@ tix() {
       __tix_repo_dir
       ;;
     open)
+      __tix_resolve_vault >/dev/null || return 1
+      __tix_open "repos/$(__tix_repo_name)"
+      ;;
+    reveal)
       local dir
       dir="$(__tix_repo_dir)" || return 1
       [[ -d "$dir" ]] || { print -r -- "tix: $dir does not exist. Run 'tix init' first." >&2 ; return 1 ; }
-      __tix_open "$dir"
+      __tix_reveal "$dir"
       ;;
     init)
       # Filled in by Phase 2.
@@ -230,9 +324,10 @@ tix() {
       ;;
     help|-h|--help)
       cat <<'EOF'
-tix          cd to $OBSIDIAN_VAULT/repos/<repo>/
+tix          cd to <vault>/repos/<repo>/
 tix path     print resolved vault dir for current repo
-tix open     open that dir via OS opener / Obsidian
+tix open     open that dir inside Obsidian (via URI scheme)
+tix reveal   open that dir in the OS file manager
 tix init     create vault dir, symlink ./tix, hide from git
 tix help     this message
 EOF
@@ -265,21 +360,54 @@ the existing `home-squad` alias untouched.
       `zsh -c 'source ~/dot-scripts/tix/tix.zsh && type tix' | grep -q "tix is a shell function"`
 - [ ] `.zshrc` contains the source line:
       `grep -q "dot-scripts/tix/tix.zsh" ~/.zshrc`
-- [ ] `tix help` exits 0 and prints all four subcommands:
-      `zsh -ic 'tix help' | grep -q "tix init"`
-- [ ] Vault discovery works when env var is set:
-      `OBSIDIAN_VAULT=/tmp/test-vault mkdir -p /tmp/test-vault && zsh -c 'source ~/dot-scripts/tix/tix.zsh && OBSIDIAN_VAULT=/tmp/test-vault __tix_resolve_vault' | grep -q "/tmp/test-vault"`
-- [ ] Vault discovery fails loudly when nothing is found:
-      `OBSIDIAN_VAULT= zsh -c 'source ~/dot-scripts/tix/tix.zsh && __tix_resolve_vault' 2>&1 | grep -q "vault not found"`
-- [ ] `tix path` returns `<vault>/repos/<basename-of-cwd>`:
-      `OBSIDIAN_VAULT=/tmp/test-vault zsh -ic 'cd /home/trik/dev/dot && tix path' | grep -q "/tmp/test-vault/repos/dot"`
+- [ ] `tix help` exits 0 and prints all five user-facing subcommands:
+      `zsh -ic 'tix help' | grep -q "tix init"` and
+      `zsh -ic 'tix help' | grep -q "tix reveal"` and
+      `zsh -ic 'tix help' | grep -q "tix open"`
+- [ ] Vault discovery succeeds when a synthetic registry names the vault:
+      ```sh
+      vault=$(mktemp -d) && cfg=$(mktemp -d)/obsidian.json && \
+        printf '{"vaults":{"x":{"path":"%s"}}}\n' "$vault" > "$cfg" && \
+        XDG_CONFIG_HOME="$(dirname "$cfg")/.." \
+          OBSIDIAN_VAULT_NAME="$(basename "$vault")" \
+          zsh -c 'source ~/dot-scripts/tix/tix.zsh
+                  __tix_obsidian_config_files() { print -r -- "'"$cfg"'"; }
+                  __tix_resolve_vault' | grep -qxF "$vault"
+      ```
+      (The override of `__tix_obsidian_config_files` keeps the test
+      self-contained; verifies the jq parse + path resolution end-to-end.)
+- [ ] Vault discovery fails loudly when `$OBSIDIAN_VAULT_NAME` is unset:
+      `OBSIDIAN_VAULT_NAME= zsh -c 'source ~/dot-scripts/tix/tix.zsh && __tix_resolve_vault' 2>&1 | grep -q "OBSIDIAN_VAULT_NAME is not set"`
+- [ ] Vault discovery fails loudly when the named vault is not in any
+      registry:
+      `OBSIDIAN_VAULT_NAME=does-not-exist zsh -c 'source ~/dot-scripts/tix/tix.zsh && __tix_resolve_vault' 2>&1 | grep -q "not found in any obsidian.json"`
+- [ ] `tix path` returns `<vault>/repos/<basename-of-cwd>` using the
+      synthetic-registry setup above:
+      one-liner equivalent of the resolve-vault test, but invokes `tix path`
+      from inside `/home/trik/dev/dot` and greps for `/repos/dot$`.
+- [ ] `tix open` constructs a URI of the expected shape (no actual launch
+      required; verify by stubbing the OS opener):
+      ```sh
+      OBSIDIAN_VAULT_NAME=MyVault zsh -c '
+        source ~/dot-scripts/tix/tix.zsh
+        open() { echo "CAPTURED: $*"; }
+        xdg-open() { echo "CAPTURED: $*"; }
+        cmd.exe() { echo "CAPTURED: $*"; }
+        __tix_resolve_vault() { print -r -- /tmp/x; }
+        __tix_repo_name() { print -r -- demo; }
+        tix open' 2>&1 | grep -qE 'obsidian://open\?vault=MyVault&file=repos/demo'
+      ```
 
 #### Manual Verification:
-- [ ] On the current WSL/Ubuntu machine, `tix open` (after manually
-      `mkdir`-ing the repo dir) launches the Windows file explorer or
-      Obsidian and shows the directory.
-- [ ] On macOS (if available), `tix open` triggers Finder/Obsidian.
-- [ ] On plain Linux (Kali / Ubuntu desktop), `xdg-open` works.
+- [ ] On the current WSL/Ubuntu machine, `tix open` launches Obsidian and
+      focuses it on `repos/<repo>` inside the named vault.
+- [ ] On the same machine, `tix reveal` opens Windows Explorer (via
+      `wslview` or `cmd.exe /c start`) on the same directory.
+- [ ] On macOS (if available), `tix open` brings Obsidian to the right
+      folder; `tix reveal` opens Finder.
+- [ ] On plain Linux (Kali / Ubuntu desktop), `tix open` triggers Obsidian
+      via `xdg-open` against the URI; `tix reveal` opens the system file
+      manager against the directory.
 
 **Implementation Note**: After completing Phase 1 and all automated
 verification passes, pause for manual confirmation that the OS opener works
@@ -333,12 +461,17 @@ implementation.
         ln -s "$target_dir" "$link_path"
       fi
 
-      # 3. Ensure .git/info/exclude contains `tix`
+      # 3. Ensure .git/info/exclude contains `/tix` (root-anchored).
+      #    The leading slash anchors the pattern to the repo root so unrelated
+      #    nested `tix` directories (e.g. src/tix/) are not affected.
       mkdir -p "$(dirname "$exclude_file")"
       touch "$exclude_file"
-      if ! grep -qxF 'tix' "$exclude_file"; then
-        print -r -- 'tix' >> "$exclude_file"
+      if ! grep -qxF '/tix' "$exclude_file"; then
+        print -r -- '/tix' >> "$exclude_file"
       fi
+      # If the user manually added an unanchored `tix` previously, leave it
+      # alone — both forms exclude the root symlink, and removing the user's
+      # line is out of scope for an idempotent init.
 
       print -r -- "tix init: ${link_path} -> ${target_dir}"
       ;;
@@ -347,20 +480,26 @@ implementation.
 ### Success Criteria:
 
 #### Automated Verification:
-- [ ] Init in a clean throwaway repo creates the symlink and the exclude
-      line:
+- [ ] Init in a clean throwaway repo creates the symlink and the
+      root-anchored exclude line (uses the synthetic-registry pattern from
+      Phase 1 to satisfy `__tix_resolve_vault`):
       ```sh
       tmp=$(mktemp -d) && cd "$tmp" && git init -q && \
-        OBSIDIAN_VAULT=/tmp/test-vault zsh -ic 'tix init' && \
+        vault=$(mktemp -d) && cfg=$(mktemp -d)/obsidian.json && \
+        printf '{"vaults":{"x":{"path":"%s"}}}\n' "$vault" > "$cfg" && \
+        OBSIDIAN_VAULT_NAME="$(basename "$vault")" \
+          zsh -ic "source ~/dot-scripts/tix/tix.zsh
+                   __tix_obsidian_config_files() { print -r -- '$cfg'; }
+                   tix init" && \
         test -L tix && \
-        grep -qxF 'tix' .git/info/exclude && \
-        git status --porcelain | grep -v '^?? tix' | grep -q . && echo FAIL || echo OK
+        grep -qxF '/tix' .git/info/exclude && \
+        [ -z "$(git status --porcelain)" ] && echo OK
       ```
-      (expects to print `OK` — the only untracked-or-modified entry should
-      not be `tix` because exclude hides it.)
+      (expects to print `OK` — git status is empty because the symlink is
+      excluded.)
 - [ ] Re-running `tix init` in the same repo is idempotent (no second
-      `tix` line in exclude, symlink unchanged):
-      `wc -l .git/info/exclude` returns the same count before and after a
+      `/tix` line in exclude, symlink unchanged):
+      `grep -c '^/tix$' .git/info/exclude` returns `1` before and after a
       second invocation.
 - [ ] `git status` does not list `tix/` as untracked after init.
 - [ ] If `./tix` already exists as a regular dir, init refuses with a
@@ -522,28 +661,20 @@ install script that automates Phases 1+2 on a new machine.
 
 set -euo pipefail
 
-# 1. Verify vault discovery — bail with instructions if not found.
-if [ -z "${OBSIDIAN_VAULT:-}" ] || [ ! -d "${OBSIDIAN_VAULT}" ]; then
-  for cand in \
-    "$HOME/vault" \
-    "$HOME/docs/vault" \
-    "$HOME/Documents/vault" \
-    "$HOME/Obsidian/vault" \
-    "$HOME/obsidian/vault"; do
-    if [ -d "$cand" ]; then
-      OBSIDIAN_VAULT="$cand"
-      break
-    fi
-  done
-fi
-if [ -z "${OBSIDIAN_VAULT:-}" ] || [ ! -d "${OBSIDIAN_VAULT}" ]; then
-  echo "tix install: no vault found." >&2
-  echo "  Set OBSIDIAN_VAULT=/path/to/vault in your environment, then re-run." >&2
+# 1. Require $OBSIDIAN_VAULT_NAME — we resolve the absolute path at runtime
+#    from Obsidian's per-machine registry, so this install does NOT need the
+#    path itself, only the vault name.
+if [ -z "${OBSIDIAN_VAULT_NAME:-}" ]; then
+  echo "tix install: \$OBSIDIAN_VAULT_NAME is not set." >&2
+  echo "  Export it to the name of your Obsidian vault and re-run, e.g.:" >&2
+  echo "    OBSIDIAN_VAULT_NAME=MyVault bash dot-scripts/install/tix.sh" >&2
   exit 1
 fi
 
-# 2. Ensure the per-repo root exists in the vault.
-mkdir -p "${OBSIDIAN_VAULT}/repos"
+# 2. jq is required by __tix_resolve_vault at runtime; warn now if missing.
+if ! command -v jq >/dev/null 2>&1; then
+  echo "tix install: jq not found. Install it before using 'tix' (apt install jq / brew install jq / pacman -S jq)." >&2
+fi
 
 # 3. Ensure .zshrc sources tix.zsh.
 if ! grep -q 'dot-scripts/tix/tix.zsh' "$HOME/.zshrc"; then
@@ -554,12 +685,28 @@ if ! grep -q 'dot-scripts/tix/tix.zsh' "$HOME/.zshrc"; then
   } >> "$HOME/.zshrc"
 fi
 
-# 4. Persist OBSIDIAN_VAULT in .zshrc if it's not already set there.
-if ! grep -q 'OBSIDIAN_VAULT=' "$HOME/.zshrc"; then
-  printf 'export OBSIDIAN_VAULT=%q\n' "${OBSIDIAN_VAULT}" >> "$HOME/.zshrc"
+# 4. Persist OBSIDIAN_VAULT_NAME in .zshrc if it's not already set there.
+if ! grep -q 'OBSIDIAN_VAULT_NAME=' "$HOME/.zshrc"; then
+  printf 'export OBSIDIAN_VAULT_NAME=%q\n' "${OBSIDIAN_VAULT_NAME}" >> "$HOME/.zshrc"
 fi
 
-echo "tix install: vault=${OBSIDIAN_VAULT}, .zshrc updated."
+# 5. Eagerly resolve the vault now to fail fast on first install if the
+#    name does not match anything in Obsidian's registry. This sources the
+#    fragment in a subshell rather than relying on the user's .zshrc state.
+if ! resolved=$(
+  OBSIDIAN_VAULT_NAME="$OBSIDIAN_VAULT_NAME" \
+    zsh -c "source $HOME/dot-scripts/tix/tix.zsh && __tix_resolve_vault" 2>&1
+); then
+  echo "tix install: could not resolve vault now, but .zshrc is configured." >&2
+  echo "  Detail: $resolved" >&2
+  echo "  Open Obsidian once with the '$OBSIDIAN_VAULT_NAME' vault, then re-run." >&2
+  exit 1
+fi
+
+# 6. Ensure the per-repo root exists in the resolved vault.
+mkdir -p "${resolved}/repos"
+
+echo "tix install: vault='${OBSIDIAN_VAULT_NAME}' resolved to ${resolved}, .zshrc updated."
 echo "  Open a new shell, cd into any repo, and run 'tix init'."
 ```
 
@@ -569,14 +716,19 @@ echo "  Open a new shell, cd into any repo, and run 'tix init'."
 documented manual step, not automated, because it touches the user's
 vault):
 
-1. Move existing content into the vault:
-   `mkdir -p "$OBSIDIAN_VAULT/repos/dot/research" "$OBSIDIAN_VAULT/repos/dot/plans"`
-   `mv tix/research/2026-06-18-obsidian-vault-multi-repo-planning.md "$OBSIDIAN_VAULT/repos/dot/research/"`
-   `mv tix/plans/2026-06-18-obsidian-vault-tix-symlink.md "$OBSIDIAN_VAULT/repos/dot/plans/"`
-2. Remove the now-empty `tix/` from tracking:
+1. Resolve the vault path once for the recipe:
+   `vault=$(zsh -c 'source ~/dot-scripts/tix/tix.zsh && __tix_resolve_vault')`
+2. Move existing content into the vault:
+   `mkdir -p "$vault/repos/dot/research" "$vault/repos/dot/plans"`
+   `mv tix/research/2026-06-18-obsidian-vault-multi-repo-planning.md "$vault/repos/dot/research/"`
+   `mv tix/plans/2026-06-18-obsidian-vault-tix-symlink.md "$vault/repos/dot/plans/"`
+   `mv tix/plans/tix-plan-critique.md "$vault/repos/dot/plans/"` (if present
+   — this file was added during plan iteration and is also currently
+   tracked or untracked under the old `tix/` tree).
+3. Remove the now-empty `tix/` from tracking:
    `git rm -r tix/`
-3. Run `tix init` to create the symlink and exclude entry.
-4. Verify: `ls -la tix` shows the symlink; `git status` is clean; the moved
+4. Run `tix init` to create the symlink and exclude entry.
+5. Verify: `ls -la tix` shows the symlink; `git status` is clean; the moved
    docs are readable through the symlink path.
 
 This step is documented as a checklist inside `dot-scripts/install/tix.sh`
@@ -595,10 +747,20 @@ exact line, same indentation, same quoting).
 #### Automated Verification:
 - [ ] Install script exists and is executable: `test -x ~/dot-scripts/install/tix.sh`
 - [ ] Running the install script on a machine that already has the setup
-      is a no-op (does not duplicate the source line):
-      `bash ~/dot-scripts/install/tix.sh && bash ~/dot-scripts/install/tix.sh && [ "$(grep -c 'dot-scripts/tix/tix.zsh' ~/.zshrc)" -eq 1 ]`
+      is a no-op (does not duplicate the source line or the env-var export):
+      ```sh
+      OBSIDIAN_VAULT_NAME="$OBSIDIAN_VAULT_NAME" bash ~/dot-scripts/install/tix.sh && \
+      OBSIDIAN_VAULT_NAME="$OBSIDIAN_VAULT_NAME" bash ~/dot-scripts/install/tix.sh && \
+      [ "$(grep -c 'dot-scripts/tix/tix.zsh' ~/.zshrc)" -eq 1 ] && \
+      [ "$(grep -c 'OBSIDIAN_VAULT_NAME=' ~/.zshrc)" -eq 1 ]
+      ```
 - [ ] After the migration, the `dot` repo's `tix` is a symlink to the
-      vault: `test -L ~/dev/dot/tix && [ "$(readlink ~/dev/dot/tix)" = "${OBSIDIAN_VAULT}/repos/dot" ]`
+      vault:
+      ```sh
+      vault=$(zsh -c 'source ~/dot-scripts/tix/tix.zsh && __tix_resolve_vault') && \
+      test -L ~/dev/dot/tix && \
+      [ "$(readlink ~/dev/dot/tix)" = "${vault}/repos/dot" ]
+      ```
 - [ ] After the migration, `git -C ~/dev/dot status` is clean.
 - [ ] After the migration, `git -C ~/dev/dot ls-files tix/` returns
       nothing (the directory is no longer tracked).
@@ -634,7 +796,9 @@ existing scripts or aliases that assumed `tix/` was a real directory).
 ## Testing Strategy
 
 ### Unit Tests:
-- Vault discovery: env-var-wins, fallback-list-wins, nothing-found cases.
+- Vault discovery: `$OBSIDIAN_VAULT_NAME` unset, `jq` missing, named vault
+  not in registry, named vault present (Linux/macOS paths), and (on WSL)
+  Windows path resolution via `wslpath`.
 - Symlink creation: clean repo, repo where `./tix` already correctly
   points, repo where `./tix` is a stray dir, repo where `./tix` is a
   wrong-target symlink.
@@ -649,11 +813,13 @@ existing scripts or aliases that assumed `tix/` was a real directory).
 
 ### Manual Testing Steps:
 1. **Bootstrap on a fresh shell**: open a brand new terminal, source
-   `.zshrc`, run `tix help`. Should print the usage. Run `tix path`
-   inside the `dot` repo, should print `<vault>/repos/dot`.
+   `.zshrc`, run `tix help`. Should print the usage including `tix open`
+   and `tix reveal`. Run `tix path` inside the `dot` repo, should print
+   `<vault>/repos/dot` where `<vault>` is the path Obsidian has registered
+   for `$OBSIDIAN_VAULT_NAME`.
 2. **Per-repo init**: `cd` into a non-dot repo, run `tix init`, confirm
-   the symlink, confirm `git status` is clean, confirm Claude Code sees
-   `tix/`.
+   the symlink, confirm `/tix` is present in `.git/info/exclude`, confirm
+   `git status` is clean, confirm Claude Code sees `tix/`.
 3. **OS coverage**: verify Phase 1 + Phase 2 on at least: WSL Ubuntu
    (current), macOS, Kali. Skip Debian and WSL/Debian if no machine
    available — they share the Ubuntu code path.
@@ -664,10 +830,14 @@ existing scripts or aliases that assumed `tix/` was a real directory).
 
 ## Performance Considerations
 
-None significant. `tix.zsh` is ~70 lines of shell, sourced once per shell
-startup. `__tix_resolve_vault` performs at most five `[[ -d ]]` checks if
-the env var is unset; with the env var set it is a single check. No
-network, no spawning of `git` on every prompt.
+`tix.zsh` is sourced once per shell startup; sourcing alone defines
+functions but does no IO and is effectively free. `__tix_resolve_vault`
+*runs* a `jq` invocation against one (or, on WSL, up to two) small JSON
+files, but only when the user invokes a `tix` subcommand — never at shell
+startup. The registry files are tens of KB at most, so a single `jq` parse
+is sub-10 ms in practice. `git rev-parse --show-toplevel` runs only inside
+`tix` invocations, not on every prompt. The Obsidian URI opener is fire-
+and-forget. No measurable impact on shell responsiveness.
 
 ## Migration Notes
 
@@ -688,6 +858,15 @@ unavoidable and out of scope for this plan.
 - Original ticket: this conversation (no GitLab issue)
 - Prior research: `tix/research/2026-06-18-obsidian-vault-multi-repo-planning.md`
   (will move to `<vault>/repos/dot/research/` during Phase 4)
+- Plan critique that drove this iteration:
+  `tix/plans/tix-plan-critique.md` (also moves to
+  `<vault>/repos/dot/plans/` during Phase 4)
+- Obsidian URI scheme: `obsidian://open?vault=<name>&file=<relpath>`
+  (documented in Obsidian's help vault under "Using Obsidian URI").
+- Obsidian registry locations: `~/.config/obsidian/obsidian.json` (Linux),
+  `~/Library/Application Support/obsidian/obsidian.json` (macOS),
+  `%APPDATA%/obsidian/obsidian.json` (Windows; reachable from WSL via
+  `wslpath -u "$(cmd.exe /c 'echo %APPDATA%')"`).
 - Existing bare-git bootstrap: `dot-scripts/install/config.sh:1-24`
 - Existing alias-section pattern: `.zshrc:124-134`
 - Existing `thoughts/` policy (to be replaced): `.claude/commands/ci_commit.md:25`
