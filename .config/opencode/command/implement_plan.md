@@ -1,11 +1,11 @@
 ---
 agent: build
-description: Implement technical plans from .opencode/plans with verification
+description: Implement technical plans from tix/plans with verification
 ---
 
 # Implement Plan
 
-You are tasked with implementing an approved technical plan from `.opencode/plans/`. These plans contain phases with specific changes and success criteria.
+You are tasked with implementing an approved technical plan from `tix/plans/`. These plans contain phases with specific changes and success criteria.
 
 ## Getting Started
 

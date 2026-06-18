@@ -50,7 +50,7 @@ Then wait for the user's research query.
 
 5. **Gather metadata for the research document:**
    - generate all relevant metadata
-   - Filename: `.opencode/plans/YYYY-MM-DD-ENG-XXXX-RESEARCH-description.md`
+   - Filename: `tix/research/YYYY-MM-DD-ENG-XXXX-RESEARCH-description.md`
      - Format: `YYYY-MM-DD-ENG-XXXX-description.md` where:
        - YYYY-MM-DD is today's date
        - ENG-XXXX is the ticket number (omit if no ticket)
@@ -108,7 +108,7 @@ Then wait for the user's research query.
      [Patterns, conventions, and design decisions discovered]
 
      ## Related Research
-     [Links to other research documents in .opencode/plans/]
+      [Links to other research documents in tix/research/]
 
      ## Open Questions
      [Any areas that need further investigation]
