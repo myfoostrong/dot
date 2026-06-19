@@ -10,7 +10,7 @@ You are tasked with generating a comprehensive merge request description followi
 
 1. **Read the MR description template:**
    - First, check if `tix/mr_description.md` exists
-   - If it doesn't exist, inform the user that their thoughts setup is incomplete and they need to create an MR description template at `tix/mr_description.md`
+   - If it doesn't exist, inform the user that their tix setup is incomplete and they need to create an MR description template at `tix/mr_description.md`
    - Read the template carefully to understand all sections and requirements
 
 

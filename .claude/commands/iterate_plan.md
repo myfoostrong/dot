@@ -74,8 +74,8 @@ If the user's feedback requires understanding new code patterns or validating as
    - **codebase-pattern-finder** - To find similar patterns
 
    **For historical context:**
-   - **thoughts-locator** - To find related research or decisions
-   - **thoughts-analyzer** - To extract insights from documents
+   - **tix-locator** - To find related research or decisions
+   - **tix-analyzer** - To extract insights from documents
 
    **Be EXTREMELY specific about directories**:
    - Include full path context in prompts

@@ -56,11 +56,11 @@ Then wait for the user's input.
      - Action items and next steps
      - Other notes
 
-2. **Spawn focused research tasks using @thoughts-analyzer**:
+2. **Spawn focused research tasks using @tix-analyzer**:
    Based on the handoff content, spawn parallel research tasks to verify current state:
 
    ```
-   @thoughts-analyzer Task 1 - Gather artifact context:
+   @tix-analyzer Task 1 - Gather artifact context:
    Read all artifacts mentioned in the handoff.
    1. Read feature documents listed in "Artifacts"
    2. Read implementation plans referenced

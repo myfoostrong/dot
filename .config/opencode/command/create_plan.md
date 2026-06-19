@@ -50,7 +50,7 @@ Then wait for the user's input.
 
    - Use the **@codebase-locator** agent to find all files related to the ticket/task
    - Use the **@codebase-analyzer** agent to understand how the current implementation works
-   - If relevant, use the **@thoughts-locator** agent to find any existing plans about this feature
+   - If relevant, use the **@tix-locator** agent to find any existing plans about this feature
 
    These agents will:
    - Find relevant source files, configs, and tests
@@ -107,8 +107,8 @@ After getting initial clarifications:
    - **@codebase-pattern-finder** - To find similar features we can model after
 
    **For historical context:**
-   - **@thoughts-locator** - To find any research, plans, or decisions about this area
-   - **@thoughts-analyzer** - To extract key insights from the most relevant documents
+   - **@tix-locator** - To find any research, plans, or decisions about this area
+   - **@tix-analyzer** - To extract key insights from the most relevant documents
 
    **For related tickets:**
    - **@general** - To find similar issues or past implementations

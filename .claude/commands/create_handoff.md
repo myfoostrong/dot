@@ -28,7 +28,7 @@ Use the following template structure:
 ```markdown
 ---
 date: [Current date and time with timezone in ISO format]
-researcher: [Researcher name from thoughts status]
+researcher: [Researcher name from tix status]
 git_commit: [Current commit hash]
 branch: [Current branch name]
 repository: [Repository name]

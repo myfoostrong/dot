@@ -34,7 +34,7 @@ Then wait for the user's research query.
    - **Step 1 - Locate**: Start with @codebase-locator agents to find what exists in the codebase related to the research question
    - **Step 2 - Analyze**: Then use @codebase-analyzer agents on the most promising findings to understand implementation details
    - **Step 3 - Find Patterns**: Use @codebase-pattern-finder to find similar patterns across the codebase
-   - **Step 4 - Historical Context** (if applicable): Use @thoughts-locator and @thoughts-analyzer for historical context research (e.g., past decisions, previous implementations, design evolution)
+   - **Step 4 - Historical Context** (if applicable): Use @tix-locator and @tix-analyzer for historical context research (e.g., past decisions, previous implementations, design evolution)
    - Run multiple agents in parallel when they're searching for different things
    - Each agent knows its job - just tell it what you're looking for
    - Don't write detailed prompts about HOW to search - the agents already know
