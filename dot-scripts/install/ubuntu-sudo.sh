@@ -19,6 +19,7 @@ apt-get install -y \
     gnupg \
     software-properties-common \
     golang-go \
+    jq \
     zsh \
     wget \
     coreutils \

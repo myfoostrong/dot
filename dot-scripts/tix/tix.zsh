@@ -164,7 +164,6 @@ tix() {
       repo_name="$(basename "$repo_root")"
       target_dir="${vault}/repos/${repo_name}"
       link_path="${repo_root}/tix"
-      exclude_file="${repo_root}/.git/info/exclude"
 
       # 1. Create vault subdir layout
       mkdir -p "${target_dir}/plans" \
@@ -191,13 +190,6 @@ tix() {
       #    The leading slash anchors the pattern to the repo root so unrelated
       #    nested `tix` directories (e.g. src/tix/) are not affected.
       mkdir -p "$(dirname "$exclude_file")"
-      touch "$exclude_file"
-      if ! grep -qxF '/tix' "$exclude_file"; then
-        print -r -- '/tix' >> "$exclude_file"
-      fi
-      # If the user manually added an unanchored `tix` previously, leave it
-      # alone — both forms exclude the root symlink, and removing the user's
-      # line is out of scope for an idempotent init.
 
       print -r -- "tix init: ${link_path} -> ${target_dir}"
       ;;
