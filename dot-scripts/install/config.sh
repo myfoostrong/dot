@@ -22,3 +22,11 @@ fi;
 config checkout
 config config status.showUntrackedFiles no
 
+## Ensure origin has a proper fetch refspec + remote-tracking refs.
+## A bare clone can leave remote.origin.fetch unset, which makes
+## `config fetch` write only to FETCH_HEAD and `config branch -a`
+## show no origin/* branches. Idempotent and work-tree-safe (fetch
+## never touches $HOME), so this is safe to re-run on existing setups.
+config config --replace-all remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+config fetch origin
+
