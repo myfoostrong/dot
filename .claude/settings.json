@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit(/thoughts/**)",
+      "WebFetch(*)"
+    ]
+  },
+  "model": "opus",
+  "effortLevel": "high",
+  "theme": "dark",
+  "skipDangerousModePermissionPrompt": true
+}
