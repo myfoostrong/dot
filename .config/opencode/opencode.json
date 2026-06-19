@@ -2,7 +2,10 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "zai-coding-plan/glm-5.2",
   "permission": {
-    "doom_loop": "ask"
+    "doom_loop": "ask",
+    "external_directory": {                                                                                                                                                         
+      "/actual/path/to/target/**": "allow"                                                                                                                                          
+    }
   },
   "agent": {
     "task-orchestrator": {

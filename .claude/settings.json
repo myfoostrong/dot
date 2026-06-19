@@ -3,10 +3,11 @@
     "allow": [
       "Edit(/thoughts/**)",
       "WebFetch(*)"
-    ]
+    ],
+    "additionalDirectories": ["/actual/path/to/target"]
   },
   "model": "opus",
   "effortLevel": "high",
   "theme": "dark",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
 }
