@@ -134,6 +134,7 @@ alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
 alias home-squad="$HOME/ssh_tmux.sh kali@c2c.foo.solutions trik@localhost 9900 squad"
 
 #### tix — single Obsidian vault planning store
+export OBSIDIAN_VAULT_NAME="void"
 [[ -r "$HOME/dot-scripts/tix/tix.zsh" ]] && source "$HOME/dot-scripts/tix/tix.zsh"
 
 #### Path
@@ -142,3 +143,13 @@ export ANDROID_HOME=$HOME/Library/Android/Sdk
 export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/home/conor/.local/bin
+
+# >>> vscode python
+# version: 0.1.1
+if [ -z "$VSCODE_PYTHON_AUTOACTIVATE_GUARD" ]; then
+    export VSCODE_PYTHON_AUTOACTIVATE_GUARD=1
+    if [ -n "$VSCODE_PYTHON_ZSH_ACTIVATE" ] && [ "$TERM_PROGRAM" = "vscode" ]; then
+        eval "$VSCODE_PYTHON_ZSH_ACTIVATE" || true
+    fi
+fi
+# <<< vscode python
