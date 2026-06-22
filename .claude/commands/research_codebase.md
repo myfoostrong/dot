@@ -144,7 +144,7 @@ Then wait for the user's research query.
       ## Historical Context (from tix/)
       [Relevant insights from tix/ directory with references]
       - `tix/research/something.md` - Historical decision about X
-      - `tix/handoffs/issue-XXXX/notes.md` - Past exploration of Y
+      - `tix/handoffs/YYYY-MM-DD_HH-MM-SS_issue-XXXX_description.md` - Past exploration of Y
 
      ## Related Research
      [Links to other research documents in tix/research/]
