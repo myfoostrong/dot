@@ -1,5 +1,5 @@
 ---
-description: Discovers relevant documents in the .opencode/plans/ directory (formerly thoughts). Use this to find existing research, tickets, and plans.
+description: Discovers relevant documents in the tix/ directory (the Obsidian-vault-backed planning store). Use this to find existing research, tickets, and plans.
 mode: subagent
 tools:
   grep: true

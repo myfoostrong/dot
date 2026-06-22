@@ -135,6 +135,9 @@ alias ec2-term="$HOME/dot-scripts/aws/shutdown-instances.sh"
 
 alias home-squad="$HOME/ssh_tmux.sh kali@c2c.foo.solutions trik@localhost 9900 squad"
 
+#### tix — single Obsidian vault planning store
+[[ -r "$HOME/dot-scripts/tix/tix.zsh" ]] && source "$HOME/dot-scripts/tix/tix.zsh"
+
 #### Path
 
 export ANDROID_HOME=$HOME/Library/Android/Sdk
