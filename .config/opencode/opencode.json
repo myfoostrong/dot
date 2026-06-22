@@ -4,9 +4,10 @@
   "permission": {
     "doom_loop": "ask",
     "external_directory": {                                                                                                                                                         
-      "/actual/path/to/target/**": "allow"                                                                                                                                          
+      "~/void/repos/dot/**": "allow"                                                                                                                                          
     }
   },
+  "references": { "tix": { "path": "~/void/repos/dot", "description": "Agent notes (Obsidian vault subfolder)" } },
   "agent": {
     "task-orchestrator": {
       "description": "This agent excels at managing multiple subagents in parallel.",

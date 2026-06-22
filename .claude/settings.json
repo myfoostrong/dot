@@ -4,8 +4,9 @@
       "Edit(/thoughts/**)",
       "WebFetch(*)"
     ],
-    "additionalDirectories": ["/actual/path/to/target"]
+    "additionalDirectories": ["~/void/repos/dot"]
   },
+  "respectGitignore": false,
   "model": "opus",
   "effortLevel": "high",
   "theme": "dark",
