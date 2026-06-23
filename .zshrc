@@ -121,6 +121,10 @@ export DEFAULT_USER=conor
 # homebrew
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+# asdf-managed tool shims (uv, python, node, etc.)
+export ASDF_DIR="$HOME/.asdf"
+export PATH="$ASDF_DIR/shims:$PATH"
+
 #### Aliases
 
 alias tfp="terraform plan -var-file=envs/stag.tfvars"
