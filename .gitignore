@@ -4,3 +4,4 @@
 tix/
 .ignore
 .opencode/
+.tool-versions
