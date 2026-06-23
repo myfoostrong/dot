@@ -18,7 +18,7 @@
         "todoread": true,
         "todowrite": true
       },
-      "prompt": "{file:./prompts/task-orchestrator.md}"
+      "prompt": "{file:./task-orchestrator.md}"
     },
     "lookup": {
       "model": "zai-coding-plan/glm-5.1",
