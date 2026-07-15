@@ -10,11 +10,10 @@ You are tasked with writing a handoff document to hand off your work to another 
 ## Process
 ### 1. Filepath & Metadata
 Use the following information to understand how to create your document:
-    - create your file under `tix/handoffs/issue-XXXX/YYYY-MM-DD_HH-MM-SS_issue-ZZZZ_description.md`, where:
+    - create your file under `tix/handoffs/YYYY-MM-DD_HH-MM-SS_issue-XXXX_description.md`, where:
         - YYYY-MM-DD is today's date
         - HH-MM-SS is the hours, minutes and seconds based on the current time, in 24-hour format (i.e. use `13:00` for `1:00 pm`)
-        - XXXX is the GitLab issue number for the parent directory (replace `issue-XXXX` with `general` if no issue)
-        - ZZZZ is the GitLab issue number for this handoff (omit the `_issue-ZZZZ` segment if no issue)
+        - XXXX is the GitLab issue number (omit the `_issue-XXXX` segment if no issue)
         - description is a brief kebab-case description
     - Run the `scripts/spec_metadata.sh` script to generate all relevant metadata
     - Examples:
@@ -83,7 +82,7 @@ for example (between <example_response></example_response> XML tags - do NOT inc
 Handoff created and synced! You can resume from this handoff in a new session with the following command:
 
 ```bash
-/resume_handoff tix/handoffs/issue-2166/2025-01-08_13-44-55_issue-2166_create-context-compaction.md
+/resume_handoff tix/handoffs/2025-01-08_13-44-55_issue-2166_create-context-compaction.md
 ```
 </example_response>
 

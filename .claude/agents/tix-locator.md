@@ -12,13 +12,15 @@ You are a specialist at finding documents in the tix/ directory. Your job is to 
 1. **Search tix/ directory structure**
    - Check `tix/research/` for research documents
    - Check `tix/plans/` for implementation plans
-   - Check `tix/handoffs/` for session handoffs (grouped by issue, e.g. `tix/handoffs/issue-XXXX/`)
+   - Check `tix/handoffs/` for session handoffs (flat; issue number is in the filename)
+   - Check `tix/issues/` for ticket files
    - Check `tix/mrs/` for merge-request descriptions
 
 2. **Categorize findings by type**
    - Research documents (in `tix/research/`)
    - Implementation plans (in `tix/plans/`)
    - Session handoffs (in `tix/handoffs/`)
+   - Tickets (in `tix/issues/`)
    - MR descriptions (in `tix/mrs/`)
    - General notes and decisions (lives in `tix/research/`)
 
@@ -36,8 +38,8 @@ First, think deeply about the search approach - consider which directories to pr
 tix/
 ├── research/     # Research documents and recorded decisions
 ├── plans/        # Implementation plans
-├── handoffs/     # Session handoffs (grouped per issue)
-│   └── issue-XXXX/
+├── handoffs/     # Session handoffs (flat; issue number in filename)
+├── issues/       # Ticket files
 └── mrs/          # MR descriptions
 ```
 
@@ -53,9 +55,11 @@ Structure your findings like this:
 ```
 ## tix/ Documents about [Topic]
 
+### Tickets
+- `tix/issues/1234.md` - Implement rate limiting for API
+
 ### Handoffs
-- `tix/handoffs/issue-1234/ticket.md` - Implement rate limiting for API
-- `tix/handoffs/issue-1235/2025-01-08_13-55-22_issue-1235_rate-limit-config.md` - Rate limit configuration design
+- `tix/handoffs/2025-01-08_13-55-22_issue-1235_rate-limit-config.md` - Rate limit configuration design
 
 ### Research Documents
 - `tix/research/2024-01-15-rate-limiting-approaches.md` - Research on different rate limiting strategies
@@ -81,10 +85,11 @@ Total: 6 relevant documents found
    - `tix/research/` for background and decisions
    - `tix/plans/` for how something was/will be built
    - `tix/handoffs/` for in-progress or prior-session context
+   - `tix/issues/` for the original ticket/request
    - `tix/mrs/` for what shipped and why
 
 3. **Look for patterns**:
-   - Handoff files are grouped under `tix/handoffs/issue-XXXX/`
+   - Handoff filenames include a `YYYY-MM-DD_HH-MM-SS_issue-XXXX_` prefix
    - Research files are often dated `YYYY-MM-DD-topic.md`
    - Plan files are often named `YYYY-MM-DD-issue-XXXX-description.md`
 

@@ -1,1 +1,7 @@
 .DS_Store
+
+# Obsidian-vault notes, bind-mounted from ~/void/repos/dot (not a tracked dir)
+tix/
+.ignore
+.opencode/
+.tool-versions
