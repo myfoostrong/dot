@@ -60,7 +60,7 @@
     "expert-gpt": {
         "description": "Elite architect specializing in production-grade, scalable applications. Expertise: architecture, security, development best practices. Read-only, you shouldn't write to any files without express permissions.",
         "mode": "primary",
-        "model": "openai/gpt-5.5",
+        "model": "openai/gpt-5.6-terra",
         "permission": {
           "read": "allow",
           "glob": "allow",
