@@ -4,9 +4,6 @@
     "allow": [
       "Edit(/thoughts/**)",
       "WebFetch(*)"
-    ],
-    "additionalDirectories": [
-      "~/void/repos/dot"
     ]
   },
   "model": "opus",
