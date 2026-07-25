@@ -1,14 +1,13 @@
 {
+  "respectGitignore": false,
   "permissions": {
     "allow": [
       "Edit(/thoughts/**)",
       "WebFetch(*)"
-    ],
-    "additionalDirectories": ["~/void/repos/dot"]
+    ]
   },
-  "respectGitignore": false,
   "model": "opus",
   "effortLevel": "high",
-  "theme": "dark",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark"
 }
