@@ -40,23 +40,12 @@ If starting fresh or need more context:
    - Note all success criteria (automated and manual)
    - Identify key functionality to verify
 
-3. **Use @codebase-analyzer for parallel research** to discover implementation:
-    ```
-    @codebase-analyzer - Verify database changes:
-    Research if migration [N] was added and schema changes match plan.
-    Check: migration files, schema version, table structure
-    Return: What was implemented vs what plan specified
+3. **Investigate the implementation directly** — read files, run git commands, and check code yourself:
+   - Verify database changes: check migration files, schema version, table structure
+   - Verify code changes: read modified files and compare to plan specifications
+   - Verify test coverage: inspect test files and run test commands
 
-    @codebase-analyzer - Verify code changes:
-    Find all modified files related to [feature].
-    Compare actual changes to plan specifications.
-    Return: File-by-file comparison of planned vs actual
-
-    @codebase-analyzer - Verify test coverage:
-    Check if tests were added/modified as specified.
-    Run test commands and capture results.
-    Return: Test status and any missing coverage
-    ```
+   Only use `@codebase-analyzer` when you need a deep investigation of a *specific finding* (e.g., tracing a subtle bug through multiple files) — not for the overall validation work.
 
 ### Step 2: Systematic Validation
 
