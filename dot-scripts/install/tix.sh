@@ -42,7 +42,9 @@ if ! resolved=$(
 ); then
   echo "tix install: could not resolve vault now, but .zshrc is configured." >&2
   echo "  Detail: $resolved" >&2
-  echo "  Open Obsidian once with the '$OBSIDIAN_VAULT_NAME' vault, then re-run." >&2
+  echo "  Open Obsidian once with the '$OBSIDIAN_VAULT_NAME' vault (GUI), then re-run." >&2
+  echo "  On a headless server, configure obsidian-headless sync for that vault" >&2
+  echo "  instead (writes ~/.config/obsidian-headless/sync/<id>/config.json)." >&2
   exit 1
 fi
 

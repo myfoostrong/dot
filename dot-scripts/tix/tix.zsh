@@ -23,9 +23,42 @@ __tix_obsidian_config_files() {
   esac
 }
 
-# Resolve the vault root by looking up $OBSIDIAN_VAULT_NAME in Obsidian's
-# per-machine registry. Echoes the absolute path on success; returns non-zero
-# with a message on stderr otherwise.
+# Print one obsidian-headless sync config.json path per line.
+# On a headless server the Obsidian GUI never runs, so there is no
+# obsidian.json registry. The `obsidian-headless` sync CLI instead writes a
+# flat per-vault config under
+# ${XDG_CONFIG_HOME:-~/.config}/obsidian-headless/sync/<vaultId>/config.json,
+# shaped { "vaultName": ..., "vaultPath": ..., ... }. We use these as a
+# fallback registry so `tix` works with no GUI installed.
+__tix_obsidian_headless_configs() {
+  local base="${XDG_CONFIG_HOME:-$HOME/.config}/obsidian-headless/sync"
+  [[ -d "$base" ]] || return 0
+  local cfg
+  # (N) = nullglob: expand to nothing (not the literal pattern) if no match.
+  for cfg in "$base"/*/config.json(N); do
+    print -r -- "$cfg"
+  done
+}
+
+# Validate one candidate vault path and, if good, print its absolute Linux
+# form and return 0. Handles Windows-style paths (WSL) by converting via
+# wslpath. Returns non-zero for empty/"null"/nonexistent candidates. Shared by
+# the obsidian.json and headless-config resolution loops.
+__tix_emit_vault() {
+  local vpath="$1"
+  [[ -n "$vpath" && "$vpath" != "null" ]] || return 1
+  if [[ "$vpath" == *\\* || "$vpath" =~ '^[A-Za-z]:' ]]; then
+    vpath="$(wslpath -u "$vpath" 2>/dev/null)" || return 1
+  fi
+  [[ -n "$vpath" && -d "$vpath" ]] || return 1
+  print -r -- "$vpath"
+  return 0
+}
+
+# Resolve the vault root by looking up $OBSIDIAN_VAULT_NAME. First consult
+# Obsidian's per-machine GUI registry (obsidian.json), then fall back to the
+# obsidian-headless sync configs (for GUI-less servers). Echoes the absolute
+# path on success; returns non-zero with a message on stderr otherwise.
 __tix_resolve_vault() {
   if [[ -z "${OBSIDIAN_VAULT_NAME:-}" ]]; then
     print -r -- "tix: \$OBSIDIAN_VAULT_NAME is not set. Set it to the name of your Obsidian vault (e.g. 'export OBSIDIAN_VAULT_NAME=MyVault')." >&2
@@ -41,28 +74,36 @@ __tix_resolve_vault() {
   # make every external command (`jq`, `head`, ...) unfindable inside this
   # function. Using a non-colliding name avoids the gotcha.
   local cfg vpath
+  # 1. GUI registry (obsidian.json): a `.vaults` map keyed by id. Match the
+  #    basename of each vault's path. Normalise backslashes to forward slashes
+  #    before the basename compare, but return the *original* path so
+  #    __tix_emit_vault can detect and convert Windows paths.
   while IFS= read -r cfg; do
     [[ -r "$cfg" ]] || continue
-    # Normalise backslashes to forward slashes before basename comparison,
-    # then return the *original* path so the WSL converter below can detect
-    # Windows paths.
     vpath="$(jq -r --arg name "$OBSIDIAN_VAULT_NAME" '
       .vaults // {}
       | to_entries[]
       | select(((.value.path // "") | gsub("\\\\"; "/") | split("/") | last) == $name)
       | .value.path
     ' "$cfg" 2>/dev/null | head -n1)"
-    if [[ -n "$vpath" && "$vpath" != "null" ]]; then
-      if [[ "$vpath" == *\\* || "$vpath" =~ '^[A-Za-z]:' ]]; then
-        vpath="$(wslpath -u "$vpath" 2>/dev/null)" || vpath=""
-      fi
-      if [[ -n "$vpath" && -d "$vpath" ]]; then
-        print -r -- "$vpath"
-        return 0
-      fi
-    fi
+    __tix_emit_vault "$vpath" && return 0
   done < <(__tix_obsidian_config_files)
-  print -r -- "tix: vault '$OBSIDIAN_VAULT_NAME' not found in any obsidian.json registry. Open Obsidian once with that vault, or check \$OBSIDIAN_VAULT_NAME." >&2
+
+  # 2. Headless sync configs: flat { vaultName, vaultPath } files, one vault
+  #    each. Match either the explicit vaultName or the basename of vaultPath,
+  #    so a plain folder-name $OBSIDIAN_VAULT_NAME resolves the same way it does
+  #    against the GUI registry above.
+  while IFS= read -r cfg; do
+    [[ -r "$cfg" ]] || continue
+    vpath="$(jq -r --arg name "$OBSIDIAN_VAULT_NAME" '
+      select(((.vaultName // "") == $name)
+             or (((.vaultPath // "") | gsub("\\\\"; "/") | split("/") | last) == $name))
+      | .vaultPath
+    ' "$cfg" 2>/dev/null | head -n1)"
+    __tix_emit_vault "$vpath" && return 0
+  done < <(__tix_obsidian_headless_configs)
+
+  print -r -- "tix: vault '$OBSIDIAN_VAULT_NAME' not found in any obsidian.json registry or obsidian-headless sync config. Open Obsidian once with that vault (GUI), or check \$OBSIDIAN_VAULT_NAME." >&2
   return 1
 }
 
