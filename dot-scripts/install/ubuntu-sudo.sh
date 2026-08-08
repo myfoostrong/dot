@@ -29,7 +29,6 @@ apt-get install -y \
     gawk \
     fonts-powerline \
     openjdk-17-jdk \
-    qemu-kvm \
     libvirt-daemon-system \
     libvirt-clients \
     bridge-utils \
@@ -44,7 +43,6 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 ./aws/install
 mkdir ~/.aws
-cp ./aws_foo_config ~/.aws/config
 
 # Docker
 curl -fsSL https://get.docker.com -o get-docker.sh
@@ -69,12 +67,6 @@ usermod -aG docker $(logname)
 
 # Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Watchman
-wget -O watchman.tar.gz https://github.com/facebook/watchman/archive/refs/tags/v2024.12.23.00.tar.gz
-tar -xvzf watchman.tar.gz && cd watchman-2024.12.23.00
-./install-system-packages.sh
-./autogen.sh
 
 # Slides
 snap install slides

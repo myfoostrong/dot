@@ -27,8 +27,8 @@ Please provide:
 
 I'll analyze this information and work with you to create a comprehensive plan.
 
-Tip: You can also invoke this command with a ticket file directly: `/create_plan tix/handoffs/issue-1234/ticket.md`
-For deeper analysis, try: `/create_plan think deeply about tix/handoffs/issue-1234/ticket.md`
+Tip: You can also invoke this command with a ticket file directly: `/create_plan tix/issues/1234.md`
+For deeper analysis, try: `/create_plan think deeply about tix/issues/1234.md`
 ```
 
 Then wait for the user's input.
@@ -38,7 +38,7 @@ Then wait for the user's input.
 ### Step 1: Context Gathering & Initial Analysis
 
 1. **Read all mentioned files immediately and FULLY**:
-   - Ticket files (e.g., `tix/handoffs/issue-1234/ticket.md`)
+   - Ticket files (e.g., `tix/issues/1234.md`)
    - Research documents
    - Related implementation plans
    - Any JSON/data files mentioned
@@ -271,7 +271,7 @@ After structure approval:
 
 ## References
 
-- Original ticket: `tix/handoffs/issue-XXXX/ticket.md`
+- Original ticket: `tix/issues/XXXX.md`
 - Related research: `tix/research/[relevant].md`
 - Similar implementation: `[file:line]`
 ````
@@ -430,7 +430,7 @@ tasks = [
 User: /create_plan
 Assistant: I'll help you create a detailed implementation plan...
 
-User: We need to add parent-child tracking for Claude sub-tasks. See tix/handoffs/issue-1478/ticket.md
+User: We need to add parent-child tracking for Claude sub-tasks. See tix/issues/1478.md
 Assistant: Let me read that ticket file completely first...
 
 [Reads file fully]

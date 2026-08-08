@@ -1,5 +1,5 @@
 ---
-agent: plan
+agent: build
 description: Create handoff document for transferring work to another session
 ---
 

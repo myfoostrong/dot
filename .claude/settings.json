@@ -1,0 +1,13 @@
+{
+  "respectGitignore": false,
+  "permissions": {
+    "allow": [
+      "Edit(/thoughts/**)",
+      "WebFetch(*)"
+    ]
+  },
+  "model": "opus",
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark"
+}

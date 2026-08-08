@@ -18,11 +18,11 @@ When this command is invoked:
    - Then propose a course of action to the user and confirm, or ask for clarification on direction.
 
 2. **If an issue number (like `#XXXX` or just `XXXX`) was provided**:
-   - locate the most recent handoff document for the issue. Issues will be located in `tix/handoffs/issue-XXXX` where `XXXX` is the GitLab issue number. e.g. for issue `#2124` the handoffs would be in `tix/handoffs/issue-2124/`. **List this directory's contents.**
-   - There may be zero, one or multiple files in the directory.
-   - **If there are zero files in the directory, or the directory does not exist**: tell the user: "I'm sorry, I can't seem to find that handoff document. Can you please provide me with a path to it?"
-   - **If there is only one file in the directory**: proceed with that handoff
-   - **If there are multiple files in the directory**: using the date and time specified in the file name (it will be in the format `YYYY-MM-DD_HH-MM-SS` in 24-hour time format), proceed with the _most recent_ handoff document.
+   - locate the most recent handoff document for the issue. Handoffs live flat in `tix/handoffs/` where filenames contain the issue number. e.g. for issue `#2124` look for files containing `2124` in `tix/handoffs/`. **List this directory's contents.**
+   - There may be zero, one or multiple matching files.
+   - **If there are zero matching files**: tell the user: "I'm sorry, I can't seem to find that handoff document. Can you please provide me with a path to it?"
+   - **If there is only one matching file**: proceed with that handoff
+   - **If there are multiple matching files**: using the date and time specified in the file name (it will be in the format `YYYY-MM-DD_HH-MM-SS` in 24-hour time format), proceed with the _most recent_ handoff document.
    - Immediately read the handoff document FULLY
    - Immediately read any research or plan documents that it links to under `tix/plans` or `tix/research`; do NOT use a sub-agent to read these critical files.
    - Begin the analysis process by ingesting relevant context from the handoff document, reading additional files it mentions
@@ -34,7 +34,7 @@ I'll help you resume work from a handoff document. Let me find the available han
 
 Which handoff would you like to resume from?
 
-Tip: You can invoke this command directly with a handoff path: `/resume_handoff `tix/handoffs/issue-XXXX/YYYY-MM-DD_HH-MM-SS_issue-XXXX_description.md`
+Tip: You can invoke this command directly with a handoff path: `/resume_handoff `tix/handoffs/YYYY-MM-DD_HH-MM-SS_issue-XXXX_description.md`
 
 or using an issue number to resume from the most recent handoff for that issue: `/resume_handoff #XXXX`
 ```

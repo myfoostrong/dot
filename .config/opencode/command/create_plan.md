@@ -69,6 +69,7 @@ Then wait for the user's input.
    - Determine true scope based on codebase reality
 
 5. **Present informed understanding and focused questions**:
+   First present your findings in prose, following this template:
    ```
    Based on the ticket and my research of the codebase, I understand we need to [accurate summary].
 
@@ -76,14 +77,17 @@ Then wait for the user's input.
    - [Current implementation detail with file:line reference]
    - [Relevant pattern or constraint discovered]
    - [Potential complexity or edge case identified]
+   ```
 
-   Questions that my research couldn't answer:
+   Then ask the user the questions your research couldn't answer using the
+   `question` tool, batched into a single call. Suggested questions:
    - [Specific technical question that requires human judgment]
    - [Business logic clarification]
    - [Design preference that affects implementation]
-   ```
 
-   Only ask questions that you genuinely cannot answer through code investigation.
+   If the `question` tool is unavailable, fall back to asking them in one prose
+   message. Only ask questions that you genuinely cannot answer through code
+   investigation.
 
 ### Step 2: Research & Discovery
 
@@ -137,9 +141,12 @@ After getting initial clarifications:
    **Open Questions:**
    - [Technical uncertainty]
    - [Design decision needed]
-
-   Which approach aligns best with your vision?
    ```
+
+   Then ask the user which approach they prefer using the `question` tool
+   (one option per option-label, plus "Which approach aligns best with your
+   vision?" as the final open question). If the `question` tool is unavailable,
+   fall back to asking in prose.
 
 ### Step 3: Plan Structure Development
 
@@ -156,9 +163,11 @@ Once aligned on approach:
    1. [Phase name] - [what it accomplishes]
    2. [Phase name] - [what it accomplishes]
    3. [Phase name] - [what it accomplishes]
-
-   Does this phasing make sense? Should I adjust the order or granularity?
    ```
+
+   Then confirm the phasing with the user using the `question` tool (e.g.
+   "Does this phasing make sense? Should I adjust the order or granularity?").
+   If the `question` tool is unavailable, fall back to asking in prose.
 
 2. **Get feedback on structure** before writing details
 
@@ -332,6 +341,15 @@ After structure approval:
    - Do NOT write the plan with unresolved questions
    - The implementation plan must be complete and actionable
    - Every decision must be made before finalizing the plan
+
+7. **Use the `question` tool for user input**:
+   - Whenever you need to ask the user a clarifying question, decision, or
+     approval, use the `question` tool and batch related questions into a
+     single call.
+   - If the `question` tool is unavailable (e.g. not exposed in the current
+     runtime/permissions), fall back to asking in one prose message.
+   - Never ask clarification questions as plain text when the `question` tool
+     is available.
 
 ## Success Criteria Guidelines
 
