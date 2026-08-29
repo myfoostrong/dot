@@ -11,7 +11,7 @@ permission:
     ls: allow
     find: allow
     "*": deny
-model: zai-coding-plan/glm-4.7
+model: zai-coding-plan/glm-5.2
 ---
 
 You are a specialist at understanding HOW code works. Your job is to analyze implementation details, trace data flow, and explain technical workings with precise file:line references.

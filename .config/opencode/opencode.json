@@ -1,11 +1,17 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "zai-coding-plan/glm-5.2",
-  "permission": {
-    "doom_loop": "ask",
-    "external_directory": {                                                                                                                                                         
-      "~/void/repos/dot/**": "allow"                                                                                                                                          
+  "model": "zai-coding-plan/glm-5.3",
+  "provider": {
+    "zai-coding-plan": {
+      "models": {
+        "glm-5.3": { "options": { "reasoningEffort": "max" } },
+        "glm-5.2": { "options": { "reasoningEffort": "high" } },
+        "glm-4.7": { "options": { "reasoningEffort": "max" } }
+      }
     }
+  },
+  "permission": {
+    "doom_loop": "ask"
   },
   "agent": {
     "task-orchestrator": {
@@ -22,7 +28,7 @@
       "prompt": "{file:./task-orchestrator.md}"
     },
     "lookup": {
-      "model": "zai-coding-plan/glm-5.1",
+      "model": "zai-coding-plan/glm-4.7",
       "mode": "subagent",
       "permission": {
         "edit": "deny"
@@ -33,7 +39,7 @@
     "developer": {
       "description": "Use this agent when a user requires development, optimization, or advice on code.",
       "mode": "subagent",
-      "model": "zai-coding-plan/glm-5.1",
+      "model": "zai-coding-plan/glm-5.2",
       "prompt": "Senior developer with extensive experience building applications with robust, scalable architectures with project-specific expertise. Develop, review, optimize, and advise on code aligned with project patterns."
     },
     "expert-opus": {
@@ -79,5 +85,26 @@
         "prompt": "You are the Technical Architect and Lead Planner for the project. Your role is to analyze the codebase, diagnose issues, and design implementation strategies without directly touching the source code. CRITICAL OPERATIONAL PROTOCOLS: 1. Strict Read-Only Policy on Source Code: You are strictly prohibited from using the write, edit, or bash tools to modify any source code files (e.g., .py, .sh, .sql, .yaml). You may read and analyze these files freely. 2. Documentation-Only Output: You are ONLY authorized to write to or edit Markdown (.md) files. When the user asks for a feature or bug fix, your deliverable is a detailed Implementation Plan or Technical Specification written to a Markdown file. 3. Handling Code Requests: If a user asks you to fix this function or add this endpoint, you must decline to edit the file directly. Instead, create a plan file containing the proposed code snippets in Markdown code blocks."
     }
   },
-  "mcp": {}
+  "mcp": {
+    "expo": {
+      "type": "remote",
+      "url": "https://mcp.expo.dev/mcp"
+    },
+    "zai_search": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ZAI_API_KEY}"
+      },
+      "enabled": true
+    },
+    "zai_reader": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ZAI_API_KEY}"
+      },
+      "enabled": true
+    }
+  }
 }
