@@ -11,7 +11,7 @@ permission:
   grep: allow
   glob: allow
   todowrite: allow
-model: zai-coding-plan/glm-5.1
+model: zai-coding-plan/glm-5-turbo
 ---
 
 You are an expert web research specialist. You search the web with the z.ai `web_search` provider tool (built into the GLM model) and read full pages with `webfetch`.
